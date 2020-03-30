@@ -1,0 +1,210 @@
+---
+output: 
+  pdf_document:
+    includes:
+      in_header: header.tex
+params:
+  trs: trs
+  revert: FALSE
+sansfont: Calibri light
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F,
+                      warning = F)
+```
+
+***
+
+\begin{vwcol}[widths={0.3,0.7},
+ sep=.8cm, justify=flush,rule=0pt,indent=1em] 
+   \null \vfill
+  \includegraphics[width=.2\textwidth]{./Acceso/LOGO.jpg}
+  \vfill \null
+  
+\newpage
+  
+  \null \vfill
+  \section{\fontsize{50}{15}\selectfont Full Body}
+  \vfill \null
+ \end{vwcol}
+
+``` {r echo = FALSE}
+id.code <- gsub("[^0-9.]", "",  unique(params$trs$ID))
+transaction.type <- unique(params$trs$Transaccion)
+
+if (transaction.type == 'Venta') {
+  subtitle <- 'Proforma'
+} else if (transaction.type == 'Nota de credito') {
+  subtitle <- 'Nota de Crédito'
+} else {
+  subtitle <- paste0('Documento de ', 
+                     transaction.type)
+}
+
+subtitle <- paste0(subtitle, 
+                   ' [\\#', 
+                   id.code,
+                   ']')
+```
+
+\section{\fontsize{25}{15}\selectfont \hfil `r subtitle`\hfil}
+\bigskip
+\bigskip
+
+
+``` {r echo = FALSE}
+  
+if (unique(params$trs$Transaccion) %in% c('Venta')) {
+  sale.detail <- rbind(params$trs[, c('Producto',
+                                'Cantidad',
+                                'Precio',
+                                'Total')],
+                       c('Total',
+                         '',
+                         '',
+                         sum(params$trs$Total)))
+  
+  inf.gen <- as.data.frame(t(params$trs[1, names(params$trs) %in% c('Documento.Interno',
+                                                                    'Fecha',
+                                                                 'Medio.Pago',
+                                                                 #'Origen',
+                                                                 'Destino'#,
+                                                                 #'Relacion'
+                                                                 )]))
+  
+  row.names(inf.gen)[row.names(inf.gen) == 'Destino'] <- 'Cliente'
+  
+} else if (unique(params$trs$Transaccion) %in% c('Nota de credito')) {
+  sale.detail <- rbind(params$trs[, c('Producto',
+                                'Cantidad',
+                                'Precio',
+                                'Total')],
+                       c('Total',
+                         '',
+                         '',
+                         sum(params$trs$Total)))
+  
+  inf.gen <- as.data.frame(t(params$trs[1, names(params$trs) %in% c('Documento.Interno',
+                                                                    'Fecha',
+                                                                 'Medio.Pago',
+                                                                 'Origen'#,
+                                                                 #'Destino',
+                                                                 #'Relacion'
+                                                                 )]))
+  
+  row.names(inf.gen)[row.names(inf.gen) == 'Origen'] <- 'Cliente'
+  
+} else if (unique(params$trs$Transaccion) %in% c('Proveedor Recepcion',
+                                                 'Proveedor Devolucion')) {
+    sale.detail <- rbind(params$trs[, c('Producto',
+                                'Cantidad',
+                                'Precio',
+                                'Total')],
+                       c('Total',
+                         '',
+                         '',
+                         sum(params$trs$Total)))
+  
+  inf.gen <- as.data.frame(t(params$trs[1, names(params$trs) %in% c('Documento.Interno',
+                                                                    'Fecha',
+                                                                 #'Origen',
+                                                                 'Destino',
+                                                                 'Razon'
+                                                                 )]))
+  
+  row.names(inf.gen)[row.names(inf.gen) == 'Destino'] <- 'Proveedor'
+  
+  
+} else if (unique(params$trs$Transaccion) %in% c('Separacion')){
+  
+  sale.detail <- rbind(params$trs[, c('Producto',
+                                'Cantidad')])
+  
+  sale.detail <- rbind(sale.detail,
+                       data.frame('Producto' = 'Total',
+                                  'Cantidad' = NA_integer_))
+  
+  inf.gen <- as.data.frame(t(params$trs[1, names(params$trs) %in% c('Documento.Interno',
+                                                                    'Fecha',
+                                                                 #'Origen',
+                                                                 'Destino',
+                                                                 'Razon'
+                                                                 )]))
+  
+  row.names(inf.gen)[row.names(inf.gen) == 'Destino'] <- 'Cliente'
+  
+} else {
+  sale.detail <- rbind(params$trs[, c('Producto',
+                                'Cantidad')])
+  
+  sale.detail <- rbind(sale.detail,
+                       data.frame('Producto' = 'Total',
+                                  'Cantidad' = NA_integer_))
+  
+  inf.gen <- as.data.frame(t(params$trs[1, names(params$trs) %in% c('Documento.Interno',
+                                                                    'Fecha',
+                                                                 #'Origen',
+                                                                 'Destino'
+                                                                 )]))
+}
+
+# add total quantity of products
+sale.detail$Cantidad[dim(sale.detail)[1]] <- sum(as.numeric(sale.detail$Cantidad[-dim(sale.detail)[1]]))
+
+# formatting changes
+row.names(inf.gen)[row.names(inf.gen) == 'Documento.Interno'] <- 'D.I'
+
+
+```
+
+``` {r echo = FALSE, results = 'asis'}
+
+library(knitr)
+library(xtable)
+t1 <- knitr::kable(sale.detail,
+               format = 'latex',
+               booktabs = T)
+
+t2 <- knitr::kable(inf.gen,
+             format = 'latex', 
+             col.names = 'Info',
+             booktabs = T)
+
+cat(c("\\begin{table}[!htb]
+    \\begin{minipage}[t]{.5\\linewidth}
+      \\vspace{0pt}
+      \\centering",
+        t1,
+    "\\end{minipage}%
+    \\begin{minipage}[t]{.5\\linewidth}
+      \\vspace{0pt}
+      \\centering",
+        t2,
+    "\\end{minipage} 
+\\end{table}"
+))
+
+```
+
+
+
+\newcommand*\wildcard[2][5cm]{\vspace*{2cm}\parbox{#1}{\hrulefill\par#2}}
+
+
+\begingroup
+  \centering
+  \wildcard{}
+  \hspace{1cm}
+  \wildcard{}
+  \par
+\endgroup
+
+
+
+***
+``` {r echo = FALSE}
+rm(sale.detail)
+rm(inf.gen)
+```

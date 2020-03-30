@@ -1,0 +1,1 @@
+"C:\Program Files\R\R-3.6.1\bin\R.exe" CMD BATCH "C:\Users\FullBody\Google Drive\FullBodyInventorySystem\Acceso\run.R"
