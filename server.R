@@ -280,13 +280,15 @@ shinyServer(function(input, output, session) {
                                     'transfer',
                                     'supplier2') | 
                        (type == 'supplier' & reason %in% c('Devolución de arreglo', 'Devolución de muestra')) | #NOTE: hardcoded
-                       (type == 'wildcard' & input$wildcard.action == 'Disminuir')
+                       (type == 'wildcard' & input$wildcard.action == 'Disminuir' & revert == F) |	
+                       (type == 'wildcard' & revert == T & !is.na(origin))
     move.to.counterpart <- type %in% c('hold',
                                        'supplier',
                                        'transfer',
                                        'credit') |
                            (type %in% 'supplier2' & reason %in% c('Arreglo', 'Muestra')) |
-                           (type == 'wildcard' & input$wildcard.action == 'Aumentar')
+                           (type == 'wildcard' & input$wildcard.action == 'Aumentar' & revert == F)	
+                           (type == 'wildcard' & revert == T & !is.na(counterpart))
     
     if (move.from.origin){
       if (revert) {
