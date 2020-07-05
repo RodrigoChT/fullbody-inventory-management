@@ -280,13 +280,15 @@ shinyServer(function(input, output, session) {
                                     'transfer',
                                     'supplier2') | 
                        (type == 'supplier' & reason %in% c('Devolución de arreglo', 'Devolución de muestra')) | #NOTE: hardcoded
-                       (type == 'wildcard' & input$wildcard.action == 'Disminuir')
+                       (type == 'wildcard' & input$wildcard.action == 'Disminuir' & revert == F) |	
+                       (type == 'wildcard' & revert == T & !is.na(origin))
     move.to.counterpart <- type %in% c('hold',
                                        'supplier',
                                        'transfer',
                                        'credit') |
                            (type %in% 'supplier2' & reason %in% c('Arreglo', 'Muestra')) |
-                           (type == 'wildcard' & input$wildcard.action == 'Aumentar')
+                           (type == 'wildcard' & input$wildcard.action == 'Aumentar' & revert == F)	
+                           (type == 'wildcard' & revert == T & !is.na(counterpart))
     
     if (move.from.origin){
       if (revert) {
@@ -392,6 +394,104 @@ shinyServer(function(input, output, session) {
     
   }
   
+  update_sales_summary <- function(type, store, dates) {
+
+    pre_filter_data <- operations$transactions %>% 
+      filter(Fecha <= dates[2] & Fecha >= dates[1] & (Origen == store | Destino == store) & Revertida == 0)
+    
+    
+    if ('Ventas' %in% type) {
+      only_sales <- pre_filter_data %>%
+      filter(Transaccion %in% c('Venta')) %>%
+      group_by(ID) %>%
+      summarise(
+        Fecha = unique(Fecha),
+        Tienda = unique(Origen),
+        Cliente = unique(Destino),
+        Total = sum(Total),
+        Notas = unique(Notas)
+      )
+    } else {
+      only_sales <- NULL
+    }
+    
+    if ('Notas de credito' %in% type) {
+      only_credit_notes <- pre_filter_data %>%
+      filter(Transaccion %in% c('Nota de credito')) %>%
+      group_by(ID) %>%
+      summarise(
+        Fecha = unique(Fecha),
+        Tienda = unique(Destino),
+        Cliente = unique(Origen),
+        Total = sum(Total),
+        Notas = unique(Notas)
+      )
+    } else {
+      only_credit_notes <- NULL
+    }
+    
+    if (is.null(only_sales)) {
+      operations$sales.summary <- only_credit_notes
+    } else if (is.null(only_credit_notes)) {
+      operations$sales.summary <- only_sales
+    } else {
+      operations$sales.summary <- rbind(only_sales, only_credit_notes)
+    }
+    
+  }
+  
+  update_clothes_summary <- function(type, store, dates) {
+    pre_filter_data <- operations$transactions %>% 
+      filter(Fecha <= dates[2] & Fecha >= dates[1] & (Origen == store | Destino == store) & Revertida == 0)
+    
+    if ('Ventas' %in% type) {
+      only_sales <- pre_filter_data %>%
+        filter(Transaccion %in% c('Venta')) %>%
+        group_by(ID, Producto) %>%
+        summarise(
+          Fecha = unique(Fecha),
+          Tienda = unique(Origen),
+          Cliente = unique(Destino),
+          Cantidad = sum(Cantidad),
+          Notas = unique(Notas)
+        )
+    } else {
+      only_sales <- NULL
+    }
+    
+    if ('Notas de credito' %in% type) {
+      only_credit_notes <- pre_filter_data %>%
+        filter(Transaccion %in% c('Nota de credito')) %>%
+        group_by(ID, Producto) %>%
+        summarise(
+          Fecha = unique(Fecha),
+          Tienda = unique(Destino),
+          Cliente = unique(Origen),
+          Cantidad = sum(Cantidad),
+          Notas = unique(Notas)
+        )
+    } else {
+      only_credit_notes <- NULL
+    }
+    
+    if (is.null(only_sales)) {
+      operations$clothes.summary <- only_credit_notes
+    } else if (is.null(only_credit_notes)) {
+      operations$clothes.summary <- only_sales
+    } else {
+      operations$clothes.summary <- rbind(only_sales, only_credit_notes)
+    }
+
+    if (dim(operations$clothes.summary[1]) > 0) {
+      ids <- unique(operations$clothes.summary$ID)
+      idx <- match(ids, operations$clothes.summary$ID)
+      idx_erase <- setdiff(1:dim(operations$clothes.summary)[1], idx)
+      operations$clothes.summary$ID[idx_erase] <- ''
+    }
+    
+    
+  }
+  
   #### Load data ----
   transactions <- read.csv('./Data/transactions.csv',
                            stringsAsFactors = F)
@@ -419,6 +519,8 @@ shinyServer(function(input, output, session) {
   #### Initialize reactive values ----
   operations <- reactiveValues(sale = list(),
                                transactions = transactions,
+                               sales.summary = NA,
+                               clothes.summary = NA,
                                inventory = inventory,
                                tests = list(),
                                ongoing.transaction = F
@@ -429,6 +531,8 @@ shinyServer(function(input, output, session) {
                               price.types.input = NA,
                               price.types = price.types, 
                               stores = stores)
+  
+  updateActionButton(session,'sale.summary.create')
   
   #### Static inputs ----
   date.input <- function(id) {
@@ -463,7 +567,7 @@ shinyServer(function(input, output, session) {
   }
   
   #### Dynamic inputs ----
-  store.input <- function(id, role = NULL, stores.choices = NULL, include.sep = F) {
+  store.input <- function(id, role = NULL, stores.choices = NULL, include.sep = F, mult = F, default = NA) {
     if (is.null(role)) {
       mess <- 'Tienda: '
     } else if (role == 'receiving') {
@@ -477,14 +581,18 @@ shinyServer(function(input, output, session) {
         renderUI(
           selectizeInput(id, 
                          mess,
-                         choices = reac.data$stores$Nombre)
+                         choices = reac.data$stores$Nombre,
+                         multiple = mult,
+                         selected = default)
         )
 
       } else {
         renderUI(
           selectizeInput(id, 
                          mess,
-                         choices = reac.data$stores$Nombre)
+                         choices = reac.data$stores$Nombre,
+                         multiple = mult,
+                         selected = default)
         )
         
       }
@@ -492,7 +600,9 @@ shinyServer(function(input, output, session) {
       renderUI(
         selectizeInput(id, 
                        mess,
-                       choices = mixedsort(stores.choices))
+                       choices = mixedsort(stores.choices),
+                         multiple = mult,
+                       selected = default)
       )
     }
     
@@ -1036,13 +1146,73 @@ shinyServer(function(input, output, session) {
   rownames = F,
   server = T,
   filter = 'top',
-  options = list(dom = 'Bfrtip'))
+  options = dt.options)
   
   # Download transactions table (table too large for using standard buttons)
   output$transactions.download <- downloadHandler(
     filename = function(){'transacciones.csv'}, 
     content = function(fname){
       write.csv(operations$transactions[seq(dim(operations$transactions)[1], 1), ],
+                fname,
+                row.names = F)
+    }
+  )
+  
+  ## ______Sales summary table ----
+  output$sale.summary.store <- store.input('sale.summary.store', mult = T, default = 'Miraflores')
+
+  observeEvent(input$sale.summary.create, {
+    update_sales_summary(type = input$sale.summary.type,
+                         store = input$sale.summary.store,
+                         dates = c(input$sale.summary.start,
+                                   input$sale.summary.end))
+  })
+  
+  output$sales.summary.table <- DT::renderDataTable({
+
+    operations$sales.summary#[seq(dim(operations$sales.summary)[1], 1), ]
+  },
+  rownames = F,
+  server = T,
+  filter = 'top',
+  options = dt.options)
+
+  # Download sales summary table (table too large for using standard buttons)
+  output$sale.summary.download <- downloadHandler(
+    filename = function(){'resumen_ventas.csv'},
+    content = function(fname){
+      write.csv(operations$sales.summary,
+                fname,
+                row.names = F)
+    }
+  )
+  
+  ## ______Clothes summary ----
+  
+  output$clothes.summary.store <- store.input('clothes.summary.store', mult = T, default = 'Miraflores')
+  
+  observeEvent(input$clothes.summary.create, {
+    update_clothes_summary(type = input$clothes.summary.type,
+                         store = input$clothes.summary.store,
+                         dates = c(input$clothes.summary.start,
+                                   input$clothes.summary.end))
+    
+  })
+  
+  output$clothes.summary.table <- DT::renderDataTable({
+    
+    operations$clothes.summary
+  },
+  rownames = F,
+  server = T,
+  filter = 'top',
+  options = dt.options)
+  
+  # Download clothes summary table (table too large for using standard buttons)
+  output$clothes.summary.download <- downloadHandler(
+    filename = function(){'resumen_prendas.csv'},
+    content = function(fname){
+      write.csv(operations$clothes.summary,
                 fname,
                 row.names = F)
     }
@@ -1274,8 +1444,7 @@ shinyServer(function(input, output, session) {
         modify_inventory(type = ids.translations2[gsub('[0-9]+$', '', input$revert.trans)],
                          revert = T,
                          ID = input$revert.trans)
-
-
+        
         showModal(modalDialog(
           title     = 'Éxito',
           'Transacción revertida',
