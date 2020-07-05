@@ -185,6 +185,52 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                               widths = c(sidebar.size, 12 - sidebar.size)
                             )),
                    
+                   #### Show secondary tables and reports ----
+                   tabPanel('Reportes',
+                            navlistPanel(
+                              tabPanel('Resumen de ventas',
+                                       inputPanel(
+                                         dateInput('sale.summary.start',
+                                                   'Inicio',
+                                                   value = lubridate::today()-7),
+                                         dateInput('sale.summary.end',
+                                                   'Final'),
+                                         uiOutput('sale.summary.store'),
+                                         selectizeInput('sale.summary.type',
+                                                        'Tipo',
+                                                        choices = c('Ventas',
+                                                                    'Notas de credito'),
+                                                        selected = 'Ventas',
+                                                        multiple = T),
+                                         actionButton('sale.summary.create',
+                                                      'Generar'),
+                                         downloadButton('sale.summary.download',
+                                                        'Descargar')
+                                       ),
+                                       
+                                       DT::dataTableOutput('sales.summary.table')),
+                              tabPanel('Resumen de prendas',
+                                       inputPanel(
+                                         dateInput('clothes.summary.start',
+                                                   'Inicio',
+                                                   value = lubridate::today()-7),
+                                         dateInput('clothes.summary.end',
+                                                   'Final'),
+                                         uiOutput('clothes.summary.store'),
+                                         selectizeInput('clothes.summary.type',
+                                                        'Tipo',
+                                                        choices = c('Ventas',
+                                                                    'Notas de credito'),
+                                                        selected = 'Ventas',
+                                                        multiple = T),
+                                         actionButton('clothes.summary.create',
+                                                      'Generar'),
+                                         downloadButton('clothes.summary.download',
+                                                        'Descargar')
+                                       ),
+                                       
+                                       DT::dataTableOutput('clothes.summary.table')),
+                            widths = c(sidebar.size, 12 - sidebar.size))),
                    
                    #### Modify databases ----
                    tabPanel('Modificar bases',
