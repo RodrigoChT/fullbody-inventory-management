@@ -510,7 +510,8 @@ shinyServer(function(input, output, session) {
     arrange(desc(Codigo))  # TODO: Import pipeline operator
   counterparts <- read.csv('./Data/Contrapartes.csv',
                            stringsAsFactors = F,
-                           colClasses = 'character')
+                           colClasses = 'character',
+                           encoding = 'latin1')
   prod.types <- read.csv('./Data/Tipos de producto.csv')
   
   ## Extract some specific info
@@ -1501,6 +1502,7 @@ shinyServer(function(input, output, session) {
         # Counterpart new or updated info
         counterpart.data <- data.frame(Tipo = input$new.client.type,
                                        Nombre = counterpart.formatted.name,
+                                       Entidad = as.character(input$new.client.entity.code),
                                        Documento = as.character(input$new.client.id),
                                        Contacto = as.character(input$new.client.phone),
                                        Distrito = as.character(input$new.client.district),
@@ -1550,8 +1552,26 @@ shinyServer(function(input, output, session) {
             # Ifcounterpart name changed
             if (!is.na(counterpart.data$Nombre)) {
               
+              # Update inventory if counterpart name is changed for a provider
+              if (input$new.client.type == 'Proveedor') {
+                transaction.column <- 'Origen'
+                
+                names(operations$inventory)[names(operations$inventory) == input$modify.counterpart] <- counterpart.formatted.name
+                
+                write.csv(operations$inventory,
+                          './Data/Inventario.csv',
+                          row.names = F)
+                
+                file.copy('./Data/Inventario.csv',
+                          './Data compartida/Inventario_vista.csv',
+                          overwrite = T)
+                
+              } else {
+                transaction.column <- 'Destino'
+              }
+              
               # Update transactions file
-              operations$transactions[operations$transactions == input$modify.counterpart] <- counterpart.formatted.name
+              operations$transactions[transaction.column][operations$transactions[transaction.column] == input$modify.counterpart] <- counterpart.formatted.name
               
               write.csv(operations$transactions,
                         './Data/transactions.csv',
@@ -1561,21 +1581,26 @@ shinyServer(function(input, output, session) {
                         './Data compartida/Transacciones_vista.csv',
                         overwrite = T)
               
-              # Update inventory if counterpart name is changed for a provider
-              if (input$new.client.type == 'Proveedor') {
-                names(operations$inventory)[names(operations$inventory) == input$modify.counterpart] <- counterpart.formatted.name
               
-                write.csv(operations$inventory,
-                          './Data/Inventario.csv',
-                          row.names = F)
-                
-                file.copy('./Data/Inventario.csv',
-                          './Data compartida/Inventario_vista.csv',
-                          overwrite = T)
-                
-              }
               
             }
+            
+            # Ifcounterpart name changed
+            if (!is.na(counterpart.data$Entidad) & input$new.client.type == 'Cliente') {
+              
+              # Update transactions file
+              operations$transactions$Entidad[operations$transactions$Destino == input$modify.counterpart] <- as.character(input$new.client.entity.code)
+              
+              write.csv(operations$transactions,
+                        './Data/transactions.csv',
+                        row.names = F)
+              
+              file.copy('./Data/transactions.csv',
+                        './Data compartida/Transacciones_vista.csv',
+                        overwrite = T)
+              
+            }
+
           
           }
           
@@ -1998,7 +2023,13 @@ shinyServer(function(input, output, session) {
   # Clients
   output$clients <- DT::renderDataTable({
     reac.data$counterparts[reac.data$counterparts$Tipo == 'Cliente',
-                           !names(reac.data$counterparts) %in% c('Tipo') ]
+                           #!names(reac.data$counterparts) %in% c('Tipo')
+                           c('Nombre',
+                             'Entidad',
+                             'Documento',
+                             'Contacto',
+                             'Distrito',
+                             'Provincia')]
   },
   rownames = F,
   server = F,

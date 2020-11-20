@@ -72,6 +72,7 @@ geo.zones$lima.districts <- c('-', as.character(geo.zones$lima.districts$lima.di
 
 counterpart.vars <- c('Tipo',
                       'Nombre',
+                      'Entidad',
                       'Documento',
                       'Contacto',
                       'Provincia',
@@ -220,6 +221,8 @@ input_widgets_counterparts <- function(transaction) {
     ),
     textInput(paste0(transaction, '.name'),
               'Nombre:'),
+    textInput(paste0(transaction, '.entity.code'),
+              'Código de entidad:'),
     textInput(paste0(transaction, '.phone'),
               'Telefono:'),
     textInput(paste0(transaction, '.id'),
