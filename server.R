@@ -21,6 +21,17 @@ shinyServer(function(input, output, session) {
       entity <- reac.data$counterparts$Entidad[reac.data$counterparts$Nombre == counterpart]
     }
     
+    if (type == 'sale') {
+      charge_amounts <- c(input$sale.cash,
+                          input$sale.card,
+                          input$sale.deposit.1,
+                          input$sale.deposit.2,
+                          input$sale.credit,
+                          input$sale.advance)
+    } else {
+      charge_amounts <- rep('', 6)
+    }
+    
     # Get id of previous transaction
     previous.transaction <- max(as.numeric(gsub(ids.translations[[type]], 
                                      '',
@@ -43,6 +54,14 @@ shinyServer(function(input, output, session) {
                                            Notas = input[[paste0(type, '.notes')]],
                                            Documento.Interno = input[[paste0(type, '.id')]],
                                            Transaccion = transactions.translations[[type]],
+                                           
+                                           # Charge categories
+                                           Efectivo = charge_amounts[1],
+                                           Tarjeta = charge_amounts[2],
+                                           Deposito.1 = charge_amounts[3],
+                                           Deposito.2 = charge_amounts[4],
+                                           Al.credito = charge_amounts[5],
+                                           Avance = charge_amounts[6],
                                            
                                            # Common and non repeated info
                                            Producto = NA,
