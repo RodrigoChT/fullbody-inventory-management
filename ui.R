@@ -30,26 +30,24 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                          actionButton('sale.process', 
                                                       'Procesar venta',
                                                       icon = icon('usd',
-                                                                  lib = 'glyphicon')),
-                                         actionButton('sale.check',
-                                                      'Revisar venta'
-                                                      )
+                                                                  lib = 'glyphicon'))
                                        ),
                                        
                                        conditionalPanel(
                                           condition = "output.saleValid",
                                          uiOutput('sale.product'),
+                                         tags$div(id = 'tsList'),
+                                         tags$div(id = 'saleList'),
                                          actionButton('sale.add', 
                                                       'Añadir producto',
                                                       icon = icon('plus')),
                                          actionButton('sale.cancel',
                                                       'Cancelar'),
+                                         actionButton('sale.check',
+                                                      'Revisar venta'),
                                          textOutput('sale.check1'),
                                          tableOutput('sale.check0')
-                                       ),
-                                       
-                                       tags$div(id = 'tsList'),
-                                       tags$div(id = 'saleList')
+                                       )
                               ),
                               
                               ## Notas de credito
@@ -93,17 +91,19 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                        input_widgets('supplier'),
                                        conditionalPanel(
                                          condition = "output.supplierValid",
+                                         tags$div(id = 'supplierList'),
                                          product_widgets('supplier')
                                        ),
-                                       tags$div(id = 'supplierList')),
+                                       ),
                               ## Returning
                               tabPanel('Devolución',
                                        input_widgets('supplier2'),
                                        conditionalPanel(
                                          condition = "output.supplier2Valid",
+                                         tags$div(id = 'supplier2List'),
                                          product_widgets('supplier2')
                                        ),
-                                       tags$div(id = 'supplier2List')),
+                                       ),
                               widths = c(sidebar.size, 12 - sidebar.size))
 
                            ),
@@ -158,7 +158,7 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                        mainPanel(
                                          conditionalPanel(
                                            condition = "output.wildCardValid",
-                                           uiOutput('wildcard.product'),
+                                           #uiOutput('wildcard.product'),
                                            actionButton('wildcard.add', 
                                                         'Añadir producto',
                                                         icon = icon('plus')),
