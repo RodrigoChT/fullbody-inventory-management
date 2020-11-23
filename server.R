@@ -1063,6 +1063,7 @@ shinyServer(function(input, output, session) {
               footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
               easyClose = T
             ))
+          
           } else {
             # Set ID and initialize output data frame
             start_transaction(transaction)
@@ -1076,6 +1077,26 @@ shinyServer(function(input, output, session) {
                                                                            na.rm = T)
               
               return()
+            }
+            
+            if (transaction == 'sale') {
+              if (sum(as.numeric(operations[[transaction]]$items$Total), na.rm = T) != 
+                  sum(c(input$sale.cash,
+                        input$sale.card,
+                        input$sale.deposit.1,
+                        input$sale.deposit.2,
+                        input$sale.credit,
+                        input$sale.advance),
+                      na.rm = T)) {
+                
+                showModal(modalDialog(
+                  title     = 'ERROR',
+                  'El monto cobrado no cuadra con el precio total.',
+                  footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
+                  easyClose = T
+                ))
+                return()
+              }
             }
             
             # Save new transactions and clean up
