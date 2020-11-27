@@ -27,7 +27,9 @@ library(dplyr)
 dt.options <- list(dom = 'Bfrtip',
                    buttons = c('csv',
                                'excel',
-                               'print'))
+                               'print'),
+                   pageLength = 20,
+                   )
 
 
 doc.types <- c('Boletas',
