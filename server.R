@@ -430,12 +430,23 @@ shinyServer(function(input, output, session) {
       filter(Transaccion %in% c('Venta')) %>%
       group_by(ID) %>%
       summarise(
+        ID.interno = unique(Documento.Interno),
+        Entidad = unique(Entidad),
         Fecha = unique(Fecha),
         Tienda = unique(Origen),
         Cliente = unique(Destino),
         Total = sum(Total),
         Notas = unique(Notas)
       )
+      only_sales <- rbind(only_sales,
+                          data.frame('ID' = '',
+                                     'ID.interno' = '',
+                                     'Entidad' = '',
+                                     'Fecha' = '',
+                                     'Tienda' = '',
+                                     'Cliente' = '',
+                                     'Total' = sum(only_sales$Total),
+                                     'Notas' = ''))
     } else {
       only_sales <- NULL
     }
@@ -445,12 +456,24 @@ shinyServer(function(input, output, session) {
       filter(Transaccion %in% c('Nota de credito')) %>%
       group_by(ID) %>%
       summarise(
+        ID.interno = unique(Documento.Interno),
+        Entidad = unique(Entidad),
         Fecha = unique(Fecha),
         Tienda = unique(Destino),
         Cliente = unique(Origen),
         Total = sum(Total),
         Notas = unique(Notas)
       )
+      
+      only_credit_notes <- rbind(only_credit_notes,
+                                 data.frame('ID' = '',
+                                            'ID.interno' = '',
+                                            'Entidad' = '',
+                                            'Fecha' = '',
+                                            'Tienda' = '',
+                                            'Cliente' = '',
+                                            'Total' = sum(only_credit_notes$Total),
+                                            'Notas' = ''))
     } else {
       only_credit_notes <- NULL
     }
