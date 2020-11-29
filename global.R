@@ -22,6 +22,10 @@ library(xtable)
 library(shinythemes)
 library(magrittr)
 library(dplyr)
+# new libraries
+library(purrr)
+library(stringr)
+library(openxlsx)
 
 #### Parameters ----
 dt.options <- list(dom = 'Bfrtip',

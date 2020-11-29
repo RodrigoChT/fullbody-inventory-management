@@ -438,6 +438,98 @@ shinyServer(function(input, output, session) {
         Total = sum(Total),
         Notas = unique(Notas)
       )
+      
+      
+      import.start.id <- input$sale.summary.import.start.id
+      import.month <- input$sale.summary.import.month
+      
+      if (!is.integer(import.start.id)) {
+        import.start.id <- 0 
+      }
+      
+      num.sales <- dim(only_sales)[1]
+      operations$sales.summary.import[[1]] <- data.frame(
+        'Ase_cNummov' = str_pad(seq(import.start.id,
+                                    num.sales + as.integer(import.start.id) - 1),
+                                10,
+                                pad = '0'),
+        'Per_cPeriodo' = import.month,
+        'Ase_dFecha' = format(strptime(only_sales$Fecha,
+                                       '%Y-%m-%d'),
+                              '%d/%m/%y'),
+        'Ase_cGlosa' = 'VENTA',
+        'Ase_cTipoMoneda' = '038',
+        'CreditoFiscal' = '',
+        'MateriaConstruccion' = ''
+      )
+      
+      operations$sales.summary.import[[2]] <- data.frame(
+        'Ase_cNummov' = rep(operations$sales.summary.import[[1]]$Ase_cNummov,
+                            each = 3),
+        'Per_cPeriodo' = import.month,
+        'Pla_cCuentaContable' = rep(c('1212',
+                                      '4011',
+                                      '7010'),
+                                    num.sales),
+        'Asd_nItem' = seq(1, num.sales*3),
+        'Asd_cGlosa' = 'VENTA',
+        'Asd_nDebeSoles' = c(rbind(only_sales$Total,
+                                   rep('', num.sales),
+                                   rep('', num.sales))),
+        'Asd_nHaberSoles' = c(rbind(rep('', num.sales),
+                                    format(round(only_sales$Total * 100 / 118, 2), nsmall = 2),
+                                    format(round(only_sales$Total * 18 / 118, 2), nsmall = 2))),
+        'Asd_nTipoCambio' = 0,
+        'Asd_nDebeMonExt' = 0,
+        'Asd_nHaberMonExt' = 0,
+        'Cos_cCodigo' = '',
+        'Ent_cCodEntidad' = rep(only_sales$Entidad,
+                                each = 3),
+        'Asd_cTipoDoc' = '',
+        'Asd_dFecDoc' = rep(format(strptime(only_sales$Fecha,
+                                            '%Y-%m-%d'),
+                                   '%d/%m/%y'),
+                            each = 3),
+        'Asd_cSerieDoc' = '0001',
+        'ID' = only_sales$ID,
+        'ID.interno' = only_sales$ID.interno,
+        'Asd_cNumDoc' = '',
+        'Asd_dFecVen' = '',
+        'Asd_cBaseImp' = rep(c('', '002', '002'),
+                             num.sales),
+        'Asd_cOperaTC' = 'SCV',
+        'Asd_cTipoMoneda' = '038',
+        'Asd_cTipoDocRef' = '',
+        'Asd_dFecDocRef' = '',
+        'Asd_cSerieDocRef' = '',
+        'Asd_cNumDocRef' = '',
+        'Id_Exoneracion' = '',
+        'Id_Tipo_Renta' = '',
+        'Id_Modalidad' = '',
+        'Id_Aduana' = '',
+        'Id_Clasific_Servicio' = ''
+      )
+      
+      operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Miraflores'] <- '0003'
+      operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Fontana'] <- '0004'
+      
+      operations$sales.summary.import[[2]]$Asd_cNumDoc[only_sales$Tienda == 'Miraflores'] <- str_pad(sub('V',
+                                                                                                         '',
+                                                                                                         operations$sales.summary.import[[2]]$ID[only_sales$Tienda == 'Miraflores']),
+                                                                                                     8,
+                                                                                                     pad = '0')
+      operations$sales.summary.import[[2]]$Asd_cNumDoc[only_sales$Tienda == 'Fontana'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[only_sales$Tienda == 'Fontana'],
+                                                                                                  8,
+                                                                                                  pad = '0')
+      
+      operations$sales.summary.import[[2]]$Pla_cCuentaContable[only_sales$Tienda == 'Fontana' &
+                                                        operations$sales.summary.import[[2]]$Pla_cCuentaContable == '1212' ] <- '1216'
+      operations$sales.summary.import[[2]]$Pla_cCuentaContable[only_sales$Tienda == 'Fontana' &
+                                                        operations$sales.summary.import[[2]]$Pla_cCuentaContable == '7010' ] <- '7012'
+      
+      operations$sales.summary.import[[2]] <- select(operations$sales.summary.import[[2]],
+                                                     -c(ID, ID.interno))
+      
       only_sales <- rbind(only_sales,
                           data.frame('ID' = '',
                                      'ID.interno' = '',
@@ -640,6 +732,7 @@ shinyServer(function(input, output, session) {
   operations <- reactiveValues(sale = list(),
                                transactions = transactions,
                                sales.summary = NA,
+                               sales.summary.import = list(),
                                clothes.summary = NA,
                                inventory = inventory,
                                tests = list(),
@@ -1406,6 +1499,26 @@ shinyServer(function(input, output, session) {
       write.csv(operations$sales.summary,
                 fname,
                 row.names = F)
+    }
+  )
+  
+  # Download sales summary import table (table too large for using standard buttons)
+  output$sale.summary.import.download <- downloadHandler(
+    filename = function(){'ventas_importaciones.xls'},
+    content = function(fname){
+      wb <- createWorkbook()
+      addWorksheet(wb, 'VENTAS_CAB')
+      writeData(wb,
+                'VENTAS_CAB',
+                operations$sales.summary.import[[1]],
+                )
+      addWorksheet(wb, 'VENTAS_DET')
+      writeData(wb,
+                'VENTAS_DET',
+                operations$sales.summary.import[[2]],
+      )
+      saveWorkbook(wb, file = fname, overwrite = TRUE)
+      
     }
   )
   

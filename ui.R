@@ -220,10 +220,16 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                                                     'Notas de credito'),
                                                         selected = 'Ventas',
                                                         multiple = T),
+                                         textInput('sale.summary.import.start.id',
+                                                   'Código inicial (imp)'),
+                                         textInput('sale.summary.import.month',
+                                                   'Mes (imp)'),
                                          actionButton('sale.summary.create',
                                                       'Generar'),
                                          downloadButton('sale.summary.download',
-                                                        'Descargar')
+                                                        'Descargar'),
+                                         downloadButton('sale.summary.import.download',
+                                                        'Importaciones')
                                        ),
                                        
                                        DT::dataTableOutput('sales.summary.table')),
