@@ -497,12 +497,48 @@ shinyServer(function(input, output, session) {
         filter(Transaccion %in% c('Venta')) %>%
         group_by(ID, Producto) %>%
         summarise(
-          Fecha = unique(Fecha),
+          ID.interno = unique(Documento.Interno),
+          Precio.unitario = Precio,
+          Precio.tipo = unique(Precio.Tipo),
+          Precio.total = Precio * Cantidad,
           Tienda = unique(Origen),
+          Fecha = unique(Fecha),
           Cliente = unique(Destino),
           Cantidad = sum(Cantidad),
           Notas = unique(Notas)
         )
+      
+      totals <- pre_filter_data %>%
+        filter(Transaccion %in% c('Venta')) %>%
+        group_by(ID) %>%
+        summarise(
+          Precio.total = Precio %*% Cantidad,
+          Cantidad = sum(Cantidad)
+        )
+      
+      indices <- seq(nrow(only_sales)) %>% 
+        split(group_indices(only_sales, ID)) %>% 
+        map(~c(NA, .x)) %>%
+        unlist
+      
+      only_sales <- only_sales[indices[-1], ]
+      only_sales[dim(only_sales)[1] + 1, ] <- NA 
+      new_lines <- is.na(only_sales$ID)
+      only_sales$Precio.total[new_lines] <- totals$Precio.total
+      only_sales$Cantidad[new_lines] <- totals$Cantidad
+      
+      only_sales <- select(only_sales,
+                           Tienda,
+                           Fecha,
+                           ID,
+                           ID.interno,
+                           Cliente,
+                           Producto,
+                           Cantidad,
+                           Precio.tipo,
+                           Precio.unitario,
+                           Precio.total)
+
     } else {
       only_sales <- NULL
     }
@@ -512,12 +548,47 @@ shinyServer(function(input, output, session) {
         filter(Transaccion %in% c('Nota de credito')) %>%
         group_by(ID, Producto) %>%
         summarise(
+          ID.interno = unique(Documento.Interno),
+          Precio.unitario = Precio,
+          Precio.tipo = unique(Precio.Tipo),
+          Precio.total = Precio * Cantidad,
+          Tienda = unique(Origen),
           Fecha = unique(Fecha),
-          Tienda = unique(Destino),
-          Cliente = unique(Origen),
+          Cliente = unique(Destino),
           Cantidad = sum(Cantidad),
           Notas = unique(Notas)
         )
+      
+      totals <- pre_filter_data %>%
+        filter(Transaccion %in% c('Nota de credito')) %>%
+        group_by(ID) %>%
+        summarise(
+          Precio.total = Precio %*% Cantidad,
+          Cantidad = sum(Cantidad)
+        )
+      
+      indices <- seq(nrow(only_credit_notes)) %>% 
+        split(group_indices(only_credit_notes, ID)) %>% 
+        map(~c(NA, .x)) %>%
+        unlist
+      
+      only_credit_notes <- only_credit_notes[indices[-1], ]
+      only_credit_notes[dim(only_credit_notes)[1] + 1, ] <- NA 
+      new_lines <- is.na(only_credit_notes$ID)
+      only_credit_notes$Precio.total[new_lines] <- totals$Precio.total
+      only_credit_notes$Cantidad[new_lines] <- totals$Cantidad
+      
+      only_credit_notes <- select(only_credit_notes,
+                           Tienda,
+                           Fecha,
+                           ID,
+                           ID.interno,
+                           Cliente,
+                           Producto,
+                           Cantidad,
+                           Precio.tipo,
+                           Precio.unitario,
+                           Precio.total)
     } else {
       only_credit_notes <- NULL
     }
@@ -531,10 +602,10 @@ shinyServer(function(input, output, session) {
     }
 
     if (dim(operations$clothes.summary[1]) > 0) {
-      ids <- unique(operations$clothes.summary$ID)
-      idx <- match(ids, operations$clothes.summary$ID)
-      idx_erase <- setdiff(1:dim(operations$clothes.summary)[1], idx)
-      operations$clothes.summary$ID[idx_erase] <- ''
+      #ids <- unique(operations$clothes.summary$ID)
+      #idx <- match(ids, operations$clothes.summary$ID)
+      #idx_erase <- setdiff(1:dim(operations$clothes.summary)[1], idx)
+      #operations$clothes.summary$ID[idx_erase] <- ''
     }
     
     

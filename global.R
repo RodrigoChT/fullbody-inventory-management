@@ -28,7 +28,7 @@ dt.options <- list(dom = 'Bfrtip',
                    buttons = c('csv',
                                'excel',
                                'print'),
-                   pageLength = 20,
+                   pageLength = 20
                    )
 
 
