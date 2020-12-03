@@ -28,6 +28,7 @@ shinyServer(function(input, output, session) {
                           input$sale.deposit.2,
                           input$sale.credit,
                           input$sale.advance)
+      updateActionButton(session, 'sale.add')
     } else {
       charge_amounts <- rep('', 6)
     }
@@ -1127,6 +1128,12 @@ shinyServer(function(input, output, session) {
                              value = value)
         } 
         
+        # only allowed to modify price if "other" is selected
+        if (input[[price.id]] != 'Otro') {
+          shinyjs::disable(price.other.id)
+        } else
+          shinyjs::enable(price.other.id)
+                       
       })
       
       inserted <<- c(inserted, add)
