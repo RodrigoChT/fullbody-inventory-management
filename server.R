@@ -1963,6 +1963,10 @@ shinyServer(function(input, output, session) {
                           value = '')
           
           updateTextInput(session,
+                          'new.client.entity.code',
+                          value = '')
+          
+          updateTextInput(session,
                           'new.client.phone',
                           value = '')
           
