@@ -444,10 +444,10 @@ shinyServer(function(input, output, session) {
       )
       
       
-      import.start.id <- input$sale.summary.import.start.id
+      import.start.id <- strtoi(input$sale.summary.import.start.id)
       import.month <- input$sale.summary.import.month
       
-      if (!is.integer(import.start.id)) {
+      if (is.na(import.start.id)) {
         import.start.id <- 0 
       }
       
