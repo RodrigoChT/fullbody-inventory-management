@@ -227,7 +227,8 @@ shinyServer(function(input, output, session) {
         # Save transaction file
         write.csv(operations$transactions,
                   './Data/transactions.csv',
-                  row.names = F)
+                  row.names = F,
+                  na = '')
         
         file.copy('./Data/transactions.csv',
                   './Data compartida/Transacciones_vista.csv',
@@ -375,7 +376,8 @@ shinyServer(function(input, output, session) {
     # Save inventory file
     write.csv(operations$inventory,
               './Data/Inventario.csv',
-              row.names = F)
+              row.names = F,
+              na = '')
     
     file.copy('./Data/Inventario.csv',
               './Data compartida/Inventario_vista.csv',
@@ -392,7 +394,8 @@ shinyServer(function(input, output, session) {
       
       write.csv(operations$transactions,
                 './Data/transactions.csv',
-                row.names = F)
+                row.names = F,
+                na = '')
       
       file.copy('./Data/transactions.csv',
                 './Data compartida/Transacciones_vista.csv',
@@ -1394,7 +1397,8 @@ shinyServer(function(input, output, session) {
             operations$inventory[dim(operations$inventory)[1], ][is.na(operations$inventory[dim(operations$inventory)[1], ])] <- 0
             write.csv(operations$inventory,
                       './Data/Inventario.csv',
-                      row.names = F)
+                      row.names = F,
+                      na = '')
             
             file.copy('./Data/Inventario.csv',
                       './Data compartida/Inventario_vista.csv',
@@ -1418,7 +1422,8 @@ shinyServer(function(input, output, session) {
           # Write new prod table
           write.csv(reac.data$products,
                     './Data/Productos.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           # Sucess message
           showModal(modalDialog(
@@ -1476,7 +1481,8 @@ shinyServer(function(input, output, session) {
     content = function(fname){
       write.csv(operations$transactions[seq(dim(operations$transactions)[1], 1), ],
                 fname,
-                row.names = F)
+                row.names = F,
+                na = '')
     }
   )
   
@@ -1505,7 +1511,8 @@ shinyServer(function(input, output, session) {
     content = function(fname){
       write.csv(operations$sales.summary,
                 fname,
-                row.names = F)
+                row.names = F,
+                na = '')
     }
   )
   
@@ -1556,7 +1563,8 @@ shinyServer(function(input, output, session) {
     content = function(fname){
       write.csv(operations$clothes.summary,
                 fname,
-                row.names = F)
+                row.names = F,
+                na = '')
     }
   )
   
@@ -1868,7 +1876,8 @@ shinyServer(function(input, output, session) {
               # Save inventory file
               write.csv(operations$inventory,
                         './Data/Inventario.csv',
-                        row.names = F)
+                        row.names = F,
+                        na = '')
               
               file.copy('./Data/Inventario.csv',
                         './Data compartida/Inventario_vista.csv',
@@ -1901,7 +1910,8 @@ shinyServer(function(input, output, session) {
                 
                 write.csv(operations$inventory,
                           './Data/Inventario.csv',
-                          row.names = F)
+                          row.names = F,
+                          na = '')
                 
                 file.copy('./Data/Inventario.csv',
                           './Data compartida/Inventario_vista.csv',
@@ -1916,7 +1926,8 @@ shinyServer(function(input, output, session) {
               
               write.csv(operations$transactions,
                         './Data/transactions.csv',
-                        row.names = F)
+                        row.names = F,
+                        na = '')
               
               file.copy('./Data/transactions.csv',
                         './Data compartida/Transacciones_vista.csv',
@@ -1934,7 +1945,8 @@ shinyServer(function(input, output, session) {
               
               write.csv(operations$transactions,
                         './Data/transactions.csv',
-                        row.names = F)
+                        row.names = F,
+                        na = '')
               
               file.copy('./Data/transactions.csv',
                         './Data compartida/Transacciones_vista.csv',
@@ -1951,7 +1963,8 @@ shinyServer(function(input, output, session) {
           # Save new version of counterparts DB
           write.csv(reac.data$counterparts,
                     './Data/Contrapartes.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           # Clean inputs (only if operation went through)
           updateTextInput(session,
@@ -2071,7 +2084,8 @@ shinyServer(function(input, output, session) {
       
       write.csv(reac.data$prod.types,
                 './Data/Tipos de producto.csv',
-                row.names = F)
+                row.names = F,
+                na = '')
       
       # Clean inputs
       updateTextInput(session,
@@ -2125,7 +2139,8 @@ shinyServer(function(input, output, session) {
           reac.data$products[input$price.type.new] <- NA_real_
           write.csv(reac.data$products, 
                     './Data/Productos.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           shinyjs::reset('price.type.new')
           
@@ -2140,7 +2155,8 @@ shinyServer(function(input, output, session) {
         reac.data$products[input$price.type.existing] <- NULL
         write.csv(reac.data$products, 
                   './Data/Productos.csv',
-                  row.names = F)
+                  row.names = F,
+                  na = '')
         
         confirmation.operation()
       }
@@ -2172,14 +2188,16 @@ shinyServer(function(input, output, session) {
         
         write.csv(reac.data$stores, 
                   './Data/Locales.csv',
-                  row.names = F)
+                  row.names = F,
+                  na = '')
         
         # modify and save inventory table
         operations$inventory[[name]] <- 0
         
         write.csv(operations$inventory,
                   './Data/Inventario.csv',
-                  row.names = F)
+                  row.names = F,
+                  na = '')
         
         file.copy('./Data/Inventario.csv',
                   './Data compartida/Inventario_vista.csv',
@@ -2236,7 +2254,8 @@ shinyServer(function(input, output, session) {
           operations$inventory[[input$delete.element.selection]] <- NULL
           write.csv(operations$inventory,
                     './Data/Inventario.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           file.copy('./Data/Inventario.csv',
                     './Data compartida/Inventario_vista.csv',
@@ -2247,7 +2266,8 @@ shinyServer(function(input, output, session) {
                                                                reac.data$counterparts$Nombre == input$delete.element.selection), ]
           write.csv(reac.data$counterparts,
                     './Data/Contrapartes.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           # reset element input shock
           shinyjs::reset('delete.element.selection')
@@ -2267,7 +2287,8 @@ shinyServer(function(input, output, session) {
                                                              reac.data$counterparts$Nombre == input$delete.element.selection), ]
         write.csv(reac.data$counterparts,
                   './Data/Contrapartes.csv',
-                  row.names = F)
+                  row.names = F,
+                  na = '')
         
         # reset element input shock
         shinyjs::reset('delete.element.selection')
@@ -2288,14 +2309,16 @@ shinyServer(function(input, output, session) {
           
           write.csv(reac.data$products,
                     './Data/Productos.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           # delete product from inventory and save changes
           operations$inventory <- operations$inventory[!operations$inventory$Producto %in% input$delete.element.selection, ]
           
           write.csv(operations$inventory,
                     './Data/Inventario.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           file.copy('./Data/Inventario.csv',
                     './Data compartida/Inventario_vista.csv',
@@ -2325,7 +2348,8 @@ shinyServer(function(input, output, session) {
           
           write.csv(operations$inventory,
                     './Data/Inventario.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           file.copy('./Data/Inventario.csv',
                     './Data compartida/Inventario_vista.csv',
@@ -2336,7 +2360,8 @@ shinyServer(function(input, output, session) {
           
           write.csv(reac.data$stores, 
                     './Data/Locales.csv',
-                    row.names = F)
+                    row.names = F,
+                    na = '')
           
           # confirmation message
           confirmation.operation()
