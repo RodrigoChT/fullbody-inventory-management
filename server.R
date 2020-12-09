@@ -193,6 +193,17 @@ shinyServer(function(input, output, session) {
     # Reset date
     updateDateInput(session, paste0(type, '.date'), value = Sys.Date())
     
+    # Reset other inputs
+    updateTextInput(session, paste0(type, '.id'), value = '')
+    updateTextInput(session, paste0(type, '.notes'), value = '')
+    updateTextInput(session, paste0(type, '.id'), value = '')
+    updateTextInput(session, paste0(type, '.cash'), value = '')
+    updateTextInput(session, paste0(type, '.card'), value = '')
+    updateTextInput(session, paste0(type, '.deposit.1'), value = '')
+    updateTextInput(session, paste0(type, '.deposit.2'), value = '')
+    updateTextInput(session, paste0(type, '.credit'), value = '')
+    updateTextInput(session, paste0(type, '.advance'), value = '')
+    
     # Remove items from inserted list
     for (item in inserted) {
       removeUI(selector = paste0('#', type, 'ItemId', item))
