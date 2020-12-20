@@ -486,6 +486,13 @@ shinyServer(function(input, output, session) {
         'MateriaConstruccion' = ''
       )
       
+      entity_codes <- c()
+      for (i in only_sales$Entidad) {
+        entity_codes <- c(i,
+                          '',
+                          '')
+      }
+      
       operations$sales.summary.import[[2]] <- data.frame(
         'Ase_cNummov' = rep(operations$sales.summary.import[[1]]$Ase_cNummov,
                             each = 3),
@@ -500,15 +507,15 @@ shinyServer(function(input, output, session) {
                                    rep('', num.sales),
                                    rep('', num.sales))),
         'Asd_nHaberSoles' = c(rbind(rep('', num.sales),
-                                    format(round(only_sales$Total * 100 / 118, 2), nsmall = 2),
-                                    format(round(only_sales$Total * 18 / 118, 2), nsmall = 2))),
+                                    format(round(only_sales$Total * 18 / 118, 2), nsmall = 2),
+                                    format(round(only_sales$Total * 100 / 118, 2), nsmall = 2))),
         'Asd_nTipoCambio' = 0,
         'Asd_nDebeMonExt' = 0,
         'Asd_nHaberMonExt' = 0,
         'Cos_cCodigo' = '',
-        'Ent_cCodEntidad' = rep(only_sales$Entidad,
-                                each = 3),
-        'Asd_cTipoDoc' = '',
+        'Ent_cCodEntidad' = entity_codes,
+        'Asd_cTipoDoc' = rep(only_sales$Tienda,
+                             each = 3),
         'Asd_dFecDoc' = rep(format(strptime(only_sales$Fecha,
                                             '%Y-%m-%d'),
                                    '%d/%m/%y'),
@@ -533,21 +540,24 @@ shinyServer(function(input, output, session) {
         'Id_Clasific_Servicio' = ''
       )
       
-      operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Miraflores'] <- '0003'
-      operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Fontana'] <- '0004'
+      #operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Miraflores'] <- '0003'
+      #operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Fontana'] <- '0004'
       
-      operations$sales.summary.import[[2]]$Asd_cNumDoc[only_sales$Tienda == 'Miraflores'] <- str_pad(sub('V',
+      operations$sales.summary.import[[2]]$Asd_cTipoDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == 'Miraflores'] <- '0003'
+      operations$sales.summary.import[[2]]$Asd_cTipoDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == 'Fontana'] <- '0004'
+      
+      operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003'] <- str_pad(sub('V',
                                                                                                          '',
                                                                                                          operations$sales.summary.import[[2]]$ID[only_sales$Tienda == 'Miraflores']),
                                                                                                      8,
                                                                                                      pad = '0')
-      operations$sales.summary.import[[2]]$Asd_cNumDoc[only_sales$Tienda == 'Fontana'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[only_sales$Tienda == 'Fontana'],
+      operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[only_sales$Tienda == 'Fontana'],
                                                                                                   8,
                                                                                                   pad = '0')
       
-      operations$sales.summary.import[[2]]$Pla_cCuentaContable[only_sales$Tienda == 'Fontana' &
+      operations$sales.summary.import[[2]]$Pla_cCuentaContable[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004' &
                                                         operations$sales.summary.import[[2]]$Pla_cCuentaContable == '1212' ] <- '1216'
-      operations$sales.summary.import[[2]]$Pla_cCuentaContable[only_sales$Tienda == 'Fontana' &
+      operations$sales.summary.import[[2]]$Pla_cCuentaContable[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004' &
                                                         operations$sales.summary.import[[2]]$Pla_cCuentaContable == '7010' ] <- '7012'
       
       operations$sales.summary.import[[2]] <- select(operations$sales.summary.import[[2]],
