@@ -548,10 +548,10 @@ shinyServer(function(input, output, session) {
       
       operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003'] <- str_pad(sub('V',
                                                                                                          '',
-                                                                                                         operations$sales.summary.import[[2]]$ID[only_sales$Tienda == 'Miraflores']),
+                                                                                                         operations$sales.summary.import[[2]]$ID[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003']),
                                                                                                      8,
                                                                                                      pad = '0')
-      operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[only_sales$Tienda == 'Fontana'],
+      operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'],
                                                                                                   8,
                                                                                                   pad = '0')
       
