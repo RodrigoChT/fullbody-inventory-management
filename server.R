@@ -438,7 +438,15 @@ shinyServer(function(input, output, session) {
 
     pre_filter_data <- operations$transactions %>% 
       filter(Fecha <= dates[2] & Fecha >= dates[1] & (Origen == store | Destino == store) & Revertida == 0)
-    
+    if (nrow(pre_filter_data) == 0) {
+      showModal(modalDialog(
+        title     = 'ERROR',
+        'No hay transacciones en esas fechas.',
+        footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
+        easyClose = T
+      ))
+      return()
+    }
     
     if ('Ventas' %in% type) {
       only_sales <- pre_filter_data %>%
@@ -598,7 +606,15 @@ shinyServer(function(input, output, session) {
   update_clothes_summary <- function(type, store, dates) {
     pre_filter_data <- operations$transactions %>% 
       filter(Fecha <= dates[2] & Fecha >= dates[1] & (Origen == store | Destino == store) & Revertida == 0)
-    
+    if (nrow(pre_filter_data) == 0) {
+      showModal(modalDialog(
+        title     = 'ERROR',
+        'No hay transacciones en esas fechas.',
+        footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
+        easyClose = T
+      ))
+      return()
+    }
     if ('Ventas' %in% type) {
       only_sales <- pre_filter_data %>%
         filter(Transaccion %in% c('Venta')) %>%
