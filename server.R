@@ -2003,11 +2003,13 @@ shinyServer(function(input, output, session) {
               
             }
             
-            # Ifcounterpart name changed
+            # Ifcounterpart entity changed
             if (!is.na(counterpart.data$Entidad) & input$new.client.type == 'Cliente') {
               
               # Update transactions file
-              operations$transactions$Entidad[operations$transactions$Destino == input$modify.counterpart] <- as.character(input$new.client.entity.code)
+              operations$transactions$Entidad[operations$transactions$Destino == input$modify.counterpart] <- str_pad(as.character(input$new.client.entity.code),
+                                                                                                                      5,
+                                                                                                                      pad = '0')
               
               write.csv(operations$transactions,
                         './Data/transactions.csv',
