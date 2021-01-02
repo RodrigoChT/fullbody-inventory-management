@@ -581,13 +581,13 @@ shinyServer(function(input, output, session) {
                                      'Fecha' = '',
                                      'Tienda' = '',
                                      'Cliente' = '',
-                                     'Total' = sum(only_sales$Total),
-                                     'Efectivo' = '',
-                                     'Tarjeta' = '',
-                                     'Deposito.1' = '',
-                                     'Deposito.2' = '',
-                                     'Al.credito' = '',
-                                     'Avance' = '',
+                                     'Total' = sum(only_sales$Total, na.rm = TRUE),
+                                     'Efectivo' = sum(only_sales$Efectivo, na.rm = TRUE),
+                                     'Tarjeta' = sum(only_sales$Tarjeta, na.rm = TRUE),
+                                     'Deposito.1' = sum(only_sales$Deposito.1, na.rm = TRUE),
+                                     'Deposito.2' = sum(only_sales$Deposito.2, na.rm = TRUE),
+                                     'Al.credito' = sum(only_sales$Al.credito, na.rm = TRUE),
+                                     'Avance' = sum(only_sales$Avance, na.rm = TRUE),
                                      'Notas' = ''))
     } else {
       only_sales <- NULL
