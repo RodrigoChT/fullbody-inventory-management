@@ -494,9 +494,11 @@ shinyServer(function(input, output, session) {
       
       entity_codes <- c()
       for (i in only_sales$Entidad) {
-        entity_codes <- c(i,
-                          '',
-                          '')
+        entity_codes <- c(entity_codes,
+                          c(i,
+                            '',
+                            ''))
+        
       }
       
       operations$sales.summary.import[[2]] <- data.frame(
