@@ -459,12 +459,12 @@ shinyServer(function(input, output, session) {
         Tienda = unique(Origen),
         Cliente = unique(Destino),
         Total = sum(Total),
-        Efectivo = sum(Efectivo),
-        Tarjeta = sum(Tarjeta),
-        Deposito.1 = sum(Deposito.1),
-        Deposito.2 = sum(Deposito.2),
-        Al.credito = sum(Al.credito),
-        Avance = sum(Avance),
+        Efectivo = unique(Efectivo),
+        Tarjeta = unique(Tarjeta),
+        Deposito.1 = unique(Deposito.1),
+        Deposito.2 = unique(Deposito.2),
+        Al.credito = unique(Al.credito),
+        Avance = unique(Avance),
         Notas = unique(Notas)
       )
       
@@ -600,12 +600,12 @@ shinyServer(function(input, output, session) {
         Tienda = unique(Destino),
         Cliente = unique(Origen),
         Total = sum(Total),
-        Efectivo = sum(Efectivo),
-        Tarjeta = sum(Tarjeta),
-        Deposito.1 = sum(Deposito.1),
-        Deposito.2 = sum(Deposito.2),
-        Al.credito = sum(Al.credito),
-        Avance = sum(Avance),
+        Efectivo = unique(Efectivo),
+        Tarjeta = unique(Tarjeta),
+        Deposito.1 = unique(Deposito.1),
+        Deposito.2 = unique(Deposito.2),
+        Al.credito = unique(Al.credito),
+        Avance = unique(Avance),
         Notas = unique(Notas)
       )
       
