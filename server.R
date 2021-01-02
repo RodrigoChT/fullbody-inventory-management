@@ -1915,7 +1915,9 @@ shinyServer(function(input, output, session) {
         # Counterpart new or updated info
         counterpart.data <- data.frame(Tipo = input$new.client.type,
                                        Nombre = counterpart.formatted.name,
-                                       Entidad = as.character(input$new.client.entity.code),
+                                       Entidad = str_pad(as.character(input$new.client.entity.code),
+                                                         5,
+                                                         pad = '0'),
                                        Documento = as.character(input$new.client.id),
                                        Contacto = as.character(input$new.client.phone),
                                        Distrito = as.character(input$new.client.district),
