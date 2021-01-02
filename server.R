@@ -459,6 +459,12 @@ shinyServer(function(input, output, session) {
         Tienda = unique(Origen),
         Cliente = unique(Destino),
         Total = sum(Total),
+        Efectivo = sum(Efectivo),
+        Tarjeta = sum(Tarjeta),
+        Deposito.1 = sum(Deposito.1),
+        Deposito.2 = sum(Deposito.2),
+        Al.credito = sum(Al.credito),
+        Avance = sum(Avance),
         Notas = unique(Notas)
       )
       
@@ -537,7 +543,8 @@ shinyServer(function(input, output, session) {
         'Id_Tipo_Renta' = '',
         'Id_Modalidad' = '',
         'Id_Aduana' = '',
-        'Id_Clasific_Servicio' = ''
+        'Id_Clasific_Servicio' = '',
+        stringsAsFactors = FALSE
       )
       
       #operations$sales.summary.import[[2]]$Asd_cTipoDoc[only_sales$Tienda == 'Miraflores'] <- '0003'
@@ -571,6 +578,12 @@ shinyServer(function(input, output, session) {
                                      'Tienda' = '',
                                      'Cliente' = '',
                                      'Total' = sum(only_sales$Total),
+                                     'Efectivo' = '',
+                                     'Tarjeta' = '',
+                                     'Deposito.1' = '',
+                                     'Deposito.2' = '',
+                                     'Al.credito' = '',
+                                     'Avance' = '',
                                      'Notas' = ''))
     } else {
       only_sales <- NULL
@@ -587,6 +600,12 @@ shinyServer(function(input, output, session) {
         Tienda = unique(Destino),
         Cliente = unique(Origen),
         Total = sum(Total),
+        Efectivo = sum(Efectivo),
+        Tarjeta = sum(Tarjeta),
+        Deposito.1 = sum(Deposito.1),
+        Deposito.2 = sum(Deposito.2),
+        Al.credito = sum(Al.credito),
+        Avance = sum(Avance),
         Notas = unique(Notas)
       )
       
@@ -598,6 +617,12 @@ shinyServer(function(input, output, session) {
                                             'Tienda' = '',
                                             'Cliente' = '',
                                             'Total' = sum(only_credit_notes$Total),
+                                            'Efectivo' = '',
+                                            'Tarjeta' = '',
+                                            'Deposito.1' = '',
+                                            'Deposito.2' = '',
+                                            'Al.credito' = '',
+                                            'Avance' = '',
                                             'Notas' = ''))
     } else {
       only_credit_notes <- NULL

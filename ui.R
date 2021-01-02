@@ -111,7 +111,7 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                          condition = "output.supplierValid",
                                          tags$div(id = 'supplierList'),
                                          product_widgets('supplier')
-                                       ),
+                                       )
                                        ),
                               ## Returning
                               tabPanel('Devolución',
@@ -120,7 +120,7 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                          condition = "output.supplier2Valid",
                                          tags$div(id = 'supplier2List'),
                                          product_widgets('supplier2')
-                                       ),
+                                       )
                                        ),
                               widths = c(sidebar.size, 12 - sidebar.size))
 
