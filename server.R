@@ -8,7 +8,7 @@ shinyServer(function(input, output, session) {
       store <- unique(operations$credit$transaction$Origen)
       counterpart <- unique(operations$credit$transaction$Destino)
       reason <- unique(operations$credit$transaction$Razon)
-
+      
     } else {
       store <- input[[paste0(type, '.store')]]
       counterpart <- input[[paste0(type, '.counterpart')]]
@@ -35,11 +35,11 @@ shinyServer(function(input, output, session) {
     
     # Get id of previous transaction
     previous.transaction <- max(as.numeric(gsub(ids.translations[[type]], 
-                                     '',
-                                     operations$transactions$ID[grep(ids.translations[[type]],
-                                                                     operations$transactions$ID)]
-                                          )
-                                ))
+                                                '',
+                                                operations$transactions$ID[grep(ids.translations[[type]],
+                                                                                operations$transactions$ID)]
+    )
+    ))
     
     previous.transaction <- as.numeric(max(c(previous.transaction, 0), na.rm = T))
     
@@ -48,32 +48,32 @@ shinyServer(function(input, output, session) {
     
     # Initialize current transaction
     operations[[type]]$items <- data.frame(# Common and repeated info
-                                           Fecha = format(rep(input[[paste0(type, '.date')]],
-                                                              length(inserted))),
-                                           ID = next.transaction,
-                                           Entidad = entity,
-                                           Notas = input[[paste0(type, '.notes')]],
-                                           Documento.Interno = input[[paste0(type, '.id')]],
-                                           Transaccion = transactions.translations[[type]],
-                                           
-                                           # Charge categories
-                                           Efectivo = charge_amounts[1],
-                                           Tarjeta = charge_amounts[2],
-                                           Deposito.1 = charge_amounts[3],
-                                           Deposito.2 = charge_amounts[4],
-                                           Al.credito = charge_amounts[5],
-                                           Avance = charge_amounts[6],
-                                           
-                                           # Common and non repeated info
-                                           Producto = NA,
-                                           
-                                           # Info specific to transaction type
-                                           Medio.Pago = NA,
-                                           Razon = NA,
-                                           Revertida = 0,
-                                           Credito = NA,
-                                           Relacion = NA
-                                           )
+      Fecha = format(rep(input[[paste0(type, '.date')]],
+                         length(inserted))),
+      ID = next.transaction,
+      Entidad = entity,
+      Notas = input[[paste0(type, '.notes')]],
+      Documento.Interno = input[[paste0(type, '.id')]],
+      Transaccion = transactions.translations[[type]],
+      
+      # Charge categories
+      Efectivo = charge_amounts[1],
+      Tarjeta = charge_amounts[2],
+      Deposito.1 = charge_amounts[3],
+      Deposito.2 = charge_amounts[4],
+      Al.credito = charge_amounts[5],
+      Avance = charge_amounts[6],
+      
+      # Common and non repeated info
+      Producto = NA,
+      
+      # Info specific to transaction type
+      Medio.Pago = NA,
+      Razon = NA,
+      Revertida = 0,
+      Credito = NA,
+      Relacion = NA
+    )
     
     if (type %in% c('sale')) {
       operations[[type]]$items$Medio.Pago <- input[[paste0(type, 'Payment')]]
@@ -119,7 +119,7 @@ shinyServer(function(input, output, session) {
         operations[[type]]$items$Origen <- NA
       }
     }
-        
+    
     # Insert non identical values
     for (i in 1:dim(registered.transactions)[1]) {
       if (registered.transactions$internal[i] == 'price.actual') {
@@ -180,7 +180,7 @@ shinyServer(function(input, output, session) {
       operations[[type]]$items$Precio <- operations[[type]]$items$Precio.Tipo
       operations[[type]]$items$Precio.Tipo <- NA
     }
-
+    
     # Calculate total per product
     operations[[type]]$items$Total <- as.numeric(operations[[type]]$items$Precio) * 
       as.numeric(operations[[type]]$items$Cantidad)
@@ -215,9 +215,9 @@ shinyServer(function(input, output, session) {
   
   
   finish_transaction <- function(type, process = F) {
-  
-      if (process == T) {
-
+    
+    if (process == T) {
+      
       # Get ID of previous transaction to modify
       if (type %in% 'credit') {
         ID <- input$credit.trans
@@ -282,7 +282,7 @@ shinyServer(function(input, output, session) {
   }
   
   modify_inventory <- function(type, revert = F, ID = NULL){
-
+    
     if (type == 'credit') {
       revert <- T
       type.orig <- 'credit'
@@ -317,16 +317,16 @@ shinyServer(function(input, output, session) {
                                     'hold',
                                     'transfer',
                                     'supplier2') | 
-                       (type == 'supplier' & reason %in% c('Devolución de arreglo', 'Devolución de muestra')) | #NOTE: hardcoded
-                       (type == 'wildcard' & input$wildcard.action == 'Disminuir' & revert == F) |	
-                       (type == 'wildcard' & revert == T & !is.na(origin))
+      (type == 'supplier' & reason %in% c('Devolución de arreglo', 'Devolución de muestra')) | #NOTE: hardcoded
+      (type == 'wildcard' & input$wildcard.action == 'Disminuir' & revert == F) |	
+      (type == 'wildcard' & revert == T & !is.na(origin))
     move.to.counterpart <- type %in% c('hold',
                                        'supplier',
                                        'transfer',
                                        'credit') |
-                           (type %in% 'supplier2' & reason %in% c('Arreglo', 'Muestra')) |
-                           (type == 'wildcard' & input$wildcard.action == 'Aumentar' & revert == F)	
-                           (type == 'wildcard' & revert == T & !is.na(counterpart))
+      (type %in% 'supplier2' & reason %in% c('Arreglo', 'Muestra')) |
+      (type == 'wildcard' & input$wildcard.action == 'Aumentar' & revert == F)	
+    (type == 'wildcard' & revert == T & !is.na(counterpart))
     
     if (move.from.origin){
       if (revert) {
@@ -339,7 +339,7 @@ shinyServer(function(input, output, session) {
       
       
     }
-
+    
     if (move.to.counterpart) {
       if (revert & !type %in% 'credit') {
         operations$inventory[[counterpart]] <- operations$inventory[[counterpart]] -
@@ -412,7 +412,7 @@ shinyServer(function(input, output, session) {
                 './Data compartida/Transacciones_vista.csv',
                 overwrite = T)
     }
-
+    
     if (revert & type == 'credit') {
       render(input = "report.Rmd",
              output_format = "pdf_document",
@@ -420,7 +420,7 @@ shinyServer(function(input, output, session) {
              output_dir = "Reportes",
              params = list(trs    = transaction,
                            revert = FALSE))
-
+      
     } else if (!revert) {
       render(input = "report.Rmd",
              output_format = "pdf_document",
@@ -429,13 +429,13 @@ shinyServer(function(input, output, session) {
              params = list(trs    = transaction,
                            revert = revert))
     }
-
+    
     return('valid')
     
   }
   
   update_sales_summary <- function(type, store, dates) {
-
+    
     pre_filter_data <- operations$transactions %>% 
       filter(Fecha <= dates[2] & Fecha >= dates[1] & (Origen == store | Destino == store) & Revertida == 0)
     if (nrow(pre_filter_data) == 0) {
@@ -450,23 +450,23 @@ shinyServer(function(input, output, session) {
     
     if ('Ventas' %in% type) {
       only_sales <- pre_filter_data %>%
-      filter(Transaccion %in% c('Venta')) %>%
-      group_by(ID) %>%
-      summarise(
-        ID.interno = unique(Documento.Interno),
-        Entidad = unique(Entidad),
-        Fecha = unique(Fecha),
-        Tienda = unique(Origen),
-        Cliente = unique(Destino),
-        Total = sum(Total),
-        Efectivo = unique(Efectivo),
-        Tarjeta = unique(Tarjeta),
-        Deposito.1 = unique(Deposito.1),
-        Deposito.2 = unique(Deposito.2),
-        Al.credito = unique(Al.credito),
-        Avance = unique(Avance),
-        Notas = unique(Notas)
-      )
+        filter(Transaccion %in% c('Venta')) %>%
+        group_by(ID) %>%
+        summarise(
+          ID.interno = unique(Documento.Interno),
+          Entidad = unique(Entidad),
+          Fecha = unique(Fecha),
+          Tienda = unique(Origen),
+          Cliente = unique(Destino),
+          Total = sum(Total),
+          Efectivo = unique(Efectivo),
+          Tarjeta = unique(Tarjeta),
+          Deposito.1 = unique(Deposito.1),
+          Deposito.2 = unique(Deposito.2),
+          Al.credito = unique(Al.credito),
+          Avance = unique(Avance),
+          Notas = unique(Notas)
+        )
       
       
       import.start.id <- strtoi(input$sale.summary.import.start.id)
@@ -558,18 +558,18 @@ shinyServer(function(input, output, session) {
       operations$sales.summary.import[[2]]$Asd_cTipoDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == 'Fontana'] <- '0004'
       
       operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003'] <- str_pad(sub('V',
-                                                                                                         '',
-                                                                                                         operations$sales.summary.import[[2]]$ID[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003']),
-                                                                                                     8,
-                                                                                                     pad = '0')
+                                                                                                                                   '',
+                                                                                                                                   operations$sales.summary.import[[2]]$ID[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0003']),
+                                                                                                                               8,
+                                                                                                                               pad = '0')
       operations$sales.summary.import[[2]]$Asd_cNumDoc[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'] <- str_pad(operations$sales.summary.import[[2]]$ID.interno[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004'],
-                                                                                                  8,
-                                                                                                  pad = '0')
+                                                                                                                               8,
+                                                                                                                               pad = '0')
       
       operations$sales.summary.import[[2]]$Pla_cCuentaContable[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004' &
-                                                        operations$sales.summary.import[[2]]$Pla_cCuentaContable == '1212' ] <- '1216'
+                                                                 operations$sales.summary.import[[2]]$Pla_cCuentaContable == '1212' ] <- '1216'
       operations$sales.summary.import[[2]]$Pla_cCuentaContable[operations$sales.summary.import[[2]]$Asd_cTipoDoc == '0004' &
-                                                        operations$sales.summary.import[[2]]$Pla_cCuentaContable == '7010' ] <- '7012'
+                                                                 operations$sales.summary.import[[2]]$Pla_cCuentaContable == '7010' ] <- '7012'
       
       operations$sales.summary.import[[2]] <- select(operations$sales.summary.import[[2]],
                                                      -c(ID, ID.interno))
@@ -581,13 +581,13 @@ shinyServer(function(input, output, session) {
                                      'Fecha' = '',
                                      'Tienda' = '',
                                      'Cliente' = '',
-                                     'Total' = sum(only_sales$Total, na.rm = TRUE),
-                                     'Efectivo' = sum(only_sales$Efectivo, na.rm = TRUE),
-                                     'Tarjeta' = sum(only_sales$Tarjeta, na.rm = TRUE),
-                                     'Deposito.1' = sum(only_sales$Deposito.1, na.rm = TRUE),
-                                     'Deposito.2' = sum(only_sales$Deposito.2, na.rm = TRUE),
-                                     'Al.credito' = sum(only_sales$Al.credito, na.rm = TRUE),
-                                     'Avance' = sum(only_sales$Avance, na.rm = TRUE),
+                                     'Total' = sum(only_sales$Total),
+                                     'Efectivo' = '',
+                                     'Tarjeta' = '',
+                                     'Deposito.1' = '',
+                                     'Deposito.2' = '',
+                                     'Al.credito' = '',
+                                     'Avance' = '',
                                      'Notas' = ''))
     } else {
       only_sales <- NULL
@@ -595,23 +595,23 @@ shinyServer(function(input, output, session) {
     
     if ('Notas de credito' %in% type) {
       only_credit_notes <- pre_filter_data %>%
-      filter(Transaccion %in% c('Nota de credito')) %>%
-      group_by(ID) %>%
-      summarise(
-        ID.interno = unique(Documento.Interno),
-        Entidad = unique(Entidad),
-        Fecha = unique(Fecha),
-        Tienda = unique(Destino),
-        Cliente = unique(Origen),
-        Total = sum(Total),
-        Efectivo = unique(Efectivo),
-        Tarjeta = unique(Tarjeta),
-        Deposito.1 = unique(Deposito.1),
-        Deposito.2 = unique(Deposito.2),
-        Al.credito = unique(Al.credito),
-        Avance = unique(Avance),
-        Notas = unique(Notas)
-      )
+        filter(Transaccion %in% c('Nota de credito')) %>%
+        group_by(ID) %>%
+        summarise(
+          ID.interno = unique(Documento.Interno),
+          Entidad = unique(Entidad),
+          Fecha = unique(Fecha),
+          Tienda = unique(Destino),
+          Cliente = unique(Origen),
+          Total = sum(Total),
+          Efectivo = unique(Efectivo),
+          Tarjeta = unique(Tarjeta),
+          Deposito.1 = unique(Deposito.1),
+          Deposito.2 = unique(Deposito.2),
+          Al.credito = unique(Al.credito),
+          Avance = unique(Avance),
+          Notas = unique(Notas)
+        )
       
       only_credit_notes <- rbind(only_credit_notes,
                                  data.frame('ID' = '',
@@ -700,7 +700,7 @@ shinyServer(function(input, output, session) {
                            Precio.tipo,
                            Precio.unitario,
                            Precio.total)
-
+      
     } else {
       only_sales <- NULL
     }
@@ -741,16 +741,16 @@ shinyServer(function(input, output, session) {
       only_credit_notes$Cantidad[new_lines] <- totals$Cantidad
       
       only_credit_notes <- select(only_credit_notes,
-                           Tienda,
-                           Fecha,
-                           ID,
-                           ID.interno,
-                           Cliente,
-                           Producto,
-                           Cantidad,
-                           Precio.tipo,
-                           Precio.unitario,
-                           Precio.total)
+                                  Tienda,
+                                  Fecha,
+                                  ID,
+                                  ID.interno,
+                                  Cliente,
+                                  Producto,
+                                  Cantidad,
+                                  Precio.tipo,
+                                  Precio.unitario,
+                                  Precio.total)
     } else {
       only_credit_notes <- NULL
     }
@@ -762,7 +762,7 @@ shinyServer(function(input, output, session) {
     } else {
       operations$clothes.summary <- rbind(only_sales, only_credit_notes)
     }
-
+    
     if (dim(operations$clothes.summary[1]) > 0) {
       #ids <- unique(operations$clothes.summary$ID)
       #idx <- match(ids, operations$clothes.summary$ID)
@@ -782,7 +782,7 @@ shinyServer(function(input, output, session) {
   }
   
   inventory <- read.csv('./Data/Inventario.csv')
-
+  
   if (!'Total' %in% names(inventory)) {
     inventory$Total <- 0  
   }
@@ -841,7 +841,7 @@ shinyServer(function(input, output, session) {
                 'Nota:')
     )
   }
-
+  
   add.price.input <- function(type2, id) {
     numericInput(paste0(type2, '.price.', id),
                  label = id,
@@ -858,7 +858,7 @@ shinyServer(function(input, output, session) {
     } else if (role == 'giving') {
       mess <- 'Tienda entregando: '
     }
-  
+    
     if (is.null(stores.choices)) {
       if (include.sep) {
         renderUI(
@@ -868,7 +868,7 @@ shinyServer(function(input, output, session) {
                          multiple = mult,
                          selected = default)
         )
-
+        
       } else {
         renderUI(
           selectizeInput(id, 
@@ -884,7 +884,7 @@ shinyServer(function(input, output, session) {
         selectizeInput(id, 
                        mess,
                        choices = mixedsort(stores.choices),
-                         multiple = mult,
+                       multiple = mult,
                        selected = default)
       )
     }
@@ -922,15 +922,15 @@ shinyServer(function(input, output, session) {
     
     if (has.stock) {
       selectizeInput(id,
-                              label    = 'Producto',
-                              choices  = mixedsort(operations$inventory$Producto[operations$inventory[[store]] > 0]),
-                              selected = selected)
+                     label    = 'Producto',
+                     choices  = mixedsort(operations$inventory$Producto[operations$inventory[[store]] > 0]),
+                     selected = selected)
       
     } else {
       selectizeInput(id,
-                              label    = 'Producto',
-                              choices  = mixedsort(operations$inventory$Producto),
-                              selected = selected)
+                     label    = 'Producto',
+                     choices  = mixedsort(operations$inventory$Producto),
+                     selected = selected)
     }
     
   }
@@ -947,7 +947,7 @@ shinyServer(function(input, output, session) {
     }
     
   }
-
+  
   price.input <- function(id, type, selected = NULL) {
     if (type %in% c('supplier', 'supplier2')) {
       numericInput(id,
@@ -964,7 +964,7 @@ shinyServer(function(input, output, session) {
                      label = 'Precio',
                      choices = mixedsort(choices),
                      selected = selected
-                     )
+      )
     }
   }
   
@@ -993,7 +993,7 @@ shinyServer(function(input, output, session) {
                  max   = top.limit,
                  step  = 1
     )
-
+    
   }
   
   trans.input <- function(id, type = NULL) {
@@ -1019,11 +1019,11 @@ shinyServer(function(input, output, session) {
                       value = T) %>% 
         rev()
     }
-      
+    
     selectizeInput(id,
                    'Elegir transacción:',
                    choices = choices
-                   )
+    )
   }
   
   prod.type.input <- function(id) {
@@ -1036,7 +1036,7 @@ shinyServer(function(input, output, session) {
     renderUI(selectizeInput(id,
                             'Stock por modificar:',
                             choices = mixedsort(names(operations$inventory)[!names(operations$inventory) %in% inventory.info.cols])
-                            ))
+    ))
   }
   
   #### Sale's input----
@@ -1044,7 +1044,7 @@ shinyServer(function(input, output, session) {
   
   get_inputs <- function(type, max.quantity) {
     observeEvent(input[[paste0(type,'.add')]], {
-
+      
       add <- input[[paste0(type, '.add')]]
       item.id <- paste0(type, 'ItemId', add)
       prod.id <- paste0(type, '.prod.id', add)
@@ -1086,9 +1086,9 @@ shinyServer(function(input, output, session) {
                         tags$style(type='text/css', ".selectize-input {height: 42px; }"),
                         tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                                  product.input.simple(prod.id,
-                                               origin,
-                                               has.stock = T)
-                                 ),
+                                                      origin,
+                                                      has.stock = T)
+                        ),
                         tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                                  quantity.input(quantity.id,
                                                 max.quantity = FALSE)),
@@ -1098,13 +1098,13 @@ shinyServer(function(input, output, session) {
                                              default.price)),
                         tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                                  price.other.input(price.other.id)
-                                 ),
+                        ),
                         tags$div(style = 'margin-top: 45px; display:inline-block;vertical-align:top',
                                  actionButton(remove.id, 
                                               label = '',
                                               icon = icon('remove-circle',
                                                           lib = 'glyphicon'))
-                                 )
+                        )
           )
         )
         
@@ -1117,15 +1117,15 @@ shinyServer(function(input, output, session) {
                         tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                                  product.input.simple(prod.id,
                                                       origin,
-                                                      has.stock = T)
+                                                      has.stock = F)
                         ),
                         tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                                  quantity.input(quantity.id,
                                                 max.quantity = FALSE)),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
-                                 price.input(price.id,
-                                             type,
-                                             default.price)),
+                        #tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                        #         price.input(price.id,
+                        #                     type,
+                        #                     default.price)),
                         tags$div(style = 'margin-top: 45px; display:inline-block;vertical-align:top',
                                  actionButton(remove.id, 
                                               label = '',
@@ -1143,7 +1143,7 @@ shinyServer(function(input, output, session) {
                                  product.input.credit(prod.id,
                                                       has.stock = T,
                                                       operations$credit$clean.transaction)
-                                 ),
+                        ),
                         tags$div(style = 'display:inline-block',
                                  quantity.input(quantity.id,
                                                 max.quantity = FALSE)),
@@ -1185,31 +1185,33 @@ shinyServer(function(input, output, session) {
       # Update prices
       observeEvent(c(input[[price.id]],
                      input[[prod.id]]) , {
-        if (!is.null(input[[price.id]])) {
-          if (input[[price.id]] == 'Otro') {
-            value <- NA
-          } else {
-            value <- reac.data$products[reac.data$products$Codigo == input[[prod.id]],
-                                        input[[price.id]]]
-          }
-          updateNumericInput(session,
-                             price.other.id,
-                             value = value)
-        } 
-        
-        # only allowed to modify price if "other" is selected
-        if (input[[price.id]] != 'Otro') {
-          shinyjs::disable(price.other.id)
-        } else
-          shinyjs::enable(price.other.id)
+                       if (!is.null(input[[price.id]])) {
+                         if (input[[price.id]] == 'Otro') {
+                           value <- NA
+                           shinyjs::enable(price.other.id)
+                         } else {
+                           value <- reac.data$products[reac.data$products$Codigo == input[[prod.id]],
+                                                       input[[price.id]]]
+                         }
+                         updateNumericInput(session,
+                                            price.other.id,
+                                            value = value)
+                       }
                        
-      })
+                       # only allowed to modify price if "other" is selected
+                       #if (input[[price.id]] != 'Otro') {
+                      #   shinyjs::disable(price.other.id)
+                      # } else
+                      #   shinyjs::enable(price.other.id)
+                       
+                     }
+                       )
       
       inserted <<- c(inserted, add)
       
     })
   }
-
+  
   #### Transaction Buttons ----
   start.transaction.button <- function(transaction, has.stock) {
     observeEvent(input[[paste0(transaction, '.start')]], {
@@ -1247,7 +1249,7 @@ shinyServer(function(input, output, session) {
           #                                                                   has.stock = T,
           #                                                                   operations$credit$clean.transaction)
         } else {
-
+          
           # output[[paste0(transaction, '.product')]] <- product.input(paste0(transaction, '.product'), 
           #                                                            input[[paste0(transaction, origin)]],
           #                                                            has.stock = has.stock)
@@ -1295,10 +1297,10 @@ shinyServer(function(input, output, session) {
       insertUI(
         selector = paste0('#', transaction, 'List'),
         ui = tags$div(id = item.id,
-                     tags$div(style = 'display:inline-block',
-                              renderText('asdf' #isolate(input[[paste0(transaction, 'product')]])
-                                         ))
-      ))})
+                      tags$div(style = 'display:inline-block',
+                               renderText('asdf' #isolate(input[[paste0(transaction, 'product')]])
+                               ))
+        ))})
   }
   
   process.transaction.button <- function(transaction,
@@ -1345,7 +1347,7 @@ shinyServer(function(input, output, session) {
               footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
               easyClose = T
             ))
-          
+            
           } else {
             # Set ID and initialize output data frame
             start_transaction(transaction)
@@ -1396,21 +1398,21 @@ shinyServer(function(input, output, session) {
             easyClose = T
           ))
         }
-          
-        } else {
-          # Wrong password
-          showModal(modalDialog(
-            title     = 'ERROR',
-            'Clave equivocada!',
-            footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
-            easyClose = T
-          ))
-        }
+        
+      } else {
+        # Wrong password
+        showModal(modalDialog(
+          title     = 'ERROR',
+          'Clave equivocada!',
+          footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
+          easyClose = T
+        ))
+      }
       
       
       shinyjs::reset(paste0(transaction, '.password'))
       
-        })
+    })
   }
   
   add.change.product <- function(type2, password = F) {
@@ -1518,7 +1520,7 @@ shinyServer(function(input, output, session) {
       shinyjs::reset(paste0(type2, '.password'))
     })
   }
-
+  
   #### Checks ----
   
   check.duplicate <- function(current.name, 
@@ -1554,7 +1556,7 @@ shinyServer(function(input, output, session) {
   
   ## ______Sales summary table ----
   output$sale.summary.store <- store.input('sale.summary.store', mult = T, default = 'Miraflores')
-
+  
   observeEvent(input$sale.summary.create, {
     update_sales_summary(type = input$sale.summary.type,
                          store = input$sale.summary.store,
@@ -1563,14 +1565,14 @@ shinyServer(function(input, output, session) {
   })
   
   output$sales.summary.table <- DT::renderDataTable({
-
+    
     operations$sales.summary#[seq(dim(operations$sales.summary)[1], 1), ]
   },
   rownames = F,
   server = T,
   filter = 'top',
   options = dt.options)
-
+  
   # Download sales summary table (table too large for using standard buttons)
   output$sale.summary.download <- downloadHandler(
     filename = function(){'resumen_ventas.csv'},
@@ -1591,7 +1593,7 @@ shinyServer(function(input, output, session) {
       writeData(wb,
                 'VENTAS_CAB',
                 operations$sales.summary.import[[1]],
-                )
+      )
       addWorksheet(wb, 'VENTAS_DET')
       writeData(wb,
                 'VENTAS_DET',
@@ -1608,9 +1610,9 @@ shinyServer(function(input, output, session) {
   
   observeEvent(input$clothes.summary.create, {
     update_clothes_summary(type = input$clothes.summary.type,
-                         store = input$clothes.summary.store,
-                         dates = c(input$clothes.summary.start,
-                                   input$clothes.summary.end))
+                           store = input$clothes.summary.store,
+                           dates = c(input$clothes.summary.start,
+                                     input$clothes.summary.end))
     
   })
   
@@ -1672,7 +1674,7 @@ shinyServer(function(input, output, session) {
   output$sale.notes <- notes.input('sale.notes')
   output$sale.counterpart <- counterpart.input('sale.counterpart', 'Cliente')
   output$sale.default.price <- renderUI({price.input('sale.default.price',
-                                           'sale')})
+                                                     'sale')})
   
   ## __ Credit note ----
   output$credit.trans <- renderUI(trans.input('credit.trans', type = 'sale'))
@@ -1729,7 +1731,7 @@ shinyServer(function(input, output, session) {
   outputOptions(output, "supplierValid", suspendWhenHidden = FALSE)
   process.transaction.button('supplier')
   get_inputs('supplier', max.quantity = F)  # NOTE: turns to true in a sub category
-
+  
   # Static inputs
   output$supplier.date <- date.input('supplier.date')
   output$supplier.store <- store.input('supplier.store')
@@ -1747,7 +1749,7 @@ shinyServer(function(input, output, session) {
   outputOptions(output, "supplier2Valid", suspendWhenHidden = FALSE)
   process.transaction.button('supplier2')
   get_inputs('supplier2', max.quantity = T)
-
+  
   # Static inputs
   output$supplier2.date <- date.input('supplier2.date')
   output$supplier2.store <- store.input('supplier2.store')
@@ -1792,7 +1794,7 @@ shinyServer(function(input, output, session) {
   output$hold.notes <- notes.input('hold.notes')
   output$hold.counterpart <- counterpart.input('hold.counterpart', 'Cliente')
   #output$hold.counterpart <- counterpart.input('hold.counterpart', 'Proveedor')
-
+  
   ## __Wild card ----
   output$wildcard.date <- date.input('wildcard.date')
   output$wildcard.id <- id.input('wildcard.id')
@@ -1800,7 +1802,7 @@ shinyServer(function(input, output, session) {
   output$wildcard.notes <- notes.input('wildcard.notes')
   # output$wildcard.product <- product.input('wildcard.product',
   #                                          has.stock = F)  # NOTE: turns to true in a sub category
-
+  
   start.transaction.button('wildcard', has.stock = F)  # NOTE: turns to true in a sub category
   cancel.transaction.button('wildcard')
   output$wildCardValid <- reactive({
@@ -1828,7 +1830,7 @@ shinyServer(function(input, output, session) {
   output$transfer.check0 <- renderTable(
     
     operations[['transfer']]$items[, c('Producto',
-                                   'Cantidad')]
+                                       'Cantidad')]
     
   )
   
@@ -1855,8 +1857,8 @@ shinyServer(function(input, output, session) {
               as.numeric(difftime(lubridate::today(),
                                   operations$transactions[operations$transactions$ID == input$revert.trans, 'Fecha'],
                                   'days')) <= 15 
-              )) {
-
+      )) {
+        
         modify_inventory(type = ids.translations2[gsub('[0-9]+$', '', input$revert.trans)],
                          revert = T,
                          ID = input$revert.trans)
@@ -1867,8 +1869,8 @@ shinyServer(function(input, output, session) {
           footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
           easyClose = T
         ))
-
-
+        
+        
       } else {
         # Wrong password
         showModal(modalDialog(
@@ -1877,7 +1879,7 @@ shinyServer(function(input, output, session) {
           footer    = modalButton('OK', icon = icon('ok', lib = "glyphicon")),
           easyClose = T
         ))
-
+        
       }
       
       
@@ -1887,7 +1889,7 @@ shinyServer(function(input, output, session) {
       warning.ongoing.transaction()
       
     }
-  
+    
   })
   
   #### Register new client or provider ----
@@ -2023,8 +2025,8 @@ shinyServer(function(input, output, session) {
                         overwrite = T)
               
             }
-
-          
+            
+            
           }
           
           # Confirmation message
@@ -2073,9 +2075,9 @@ shinyServer(function(input, output, session) {
   # Modify client or provider
   observeEvent(input$new.client.type , {
     output$modify.counterpart <-
-    counterpart.input('modify.counterpart', input$new.client.type)
+      counterpart.input('modify.counterpart', input$new.client.type)
   })
-
+  
   #### Add new product ----
   output$new.prod.type <- prod.type.input('new.prod.type')
   
@@ -2092,9 +2094,9 @@ shinyServer(function(input, output, session) {
   
   #### Change product prices ----
   # Inputs
-    output$change.prices.prod <- product.input('change.prices.prod',
-                                                         store = NA,
-                                                         has.stock = F)
+  output$change.prices.prod <- product.input('change.prices.prod',
+                                             store = NA,
+                                             has.stock = F)
   
   output$change.prices.prices <- renderUI({
     tagList(
@@ -2127,7 +2129,7 @@ shinyServer(function(input, output, session) {
       
       # Check that there are input values
     } else if (any(c(input$new.type.prod.name,
-                           input$new.type.prod.code) == '')) {
+                     input$new.type.prod.code) == '')) {
       
       showModal(modalDialog(
         title     = 'ERROR',
@@ -2177,10 +2179,10 @@ shinyServer(function(input, output, session) {
       
       
     }
-      
+    
   })
   
-
+  
   #### Add or remove price type ----
   output$price.type.existing <- renderUI(price.input('price.type.existing',
                                                      'a')) # PENDING2: check if can leave empty)
@@ -2243,7 +2245,7 @@ shinyServer(function(input, output, session) {
       warning.ongoing.transaction()
       
     } else {
-    
+      
       name <- gsub(' ', '.', simple_cap(input$add.store.name))
       
       # check if store already exists 
@@ -2289,22 +2291,22 @@ shinyServer(function(input, output, session) {
                  input$new.prod.process,
                  input$new.store.process), {
                    
-    if (input$delete.element.type == 'Proveedor') {
-      choices <- reac.data$counterparts$Nombre[reac.data$counterparts$Tipo == 'Proveedor']
-    } else if (input$delete.element.type == 'Cliente') {
-      choices <- reac.data$counterparts$Nombre[reac.data$counterparts$Tipo == 'Cliente']
-    } else if (input$delete.element.type == 'Producto') {
-      choices <- reac.data$products$Codigo
-    } else if (input$delete.element.type == 'Tienda') {
-      choices <- reac.data$stores$Nombre
-    }
-  
-    output$delete.element.selection <- renderUI(
-      selectizeInput('delete.element.selection',
-                     input$delete.element.type,
-                     choices = choices)
-    )
-  })
+                   if (input$delete.element.type == 'Proveedor') {
+                     choices <- reac.data$counterparts$Nombre[reac.data$counterparts$Tipo == 'Proveedor']
+                   } else if (input$delete.element.type == 'Cliente') {
+                     choices <- reac.data$counterparts$Nombre[reac.data$counterparts$Tipo == 'Cliente']
+                   } else if (input$delete.element.type == 'Producto') {
+                     choices <- reac.data$products$Codigo
+                   } else if (input$delete.element.type == 'Tienda') {
+                     choices <- reac.data$stores$Nombre
+                   }
+                   
+                   output$delete.element.selection <- renderUI(
+                     selectizeInput('delete.element.selection',
+                                    input$delete.element.type,
+                                    choices = choices)
+                   )
+                 })
   
   observeEvent(input$delete.element.process,  {
     
@@ -2366,7 +2368,7 @@ shinyServer(function(input, output, session) {
         # confirmation message
         confirmation.operation()
         
-        } else if (input$delete.element.type == 'Producto') {
+      } else if (input$delete.element.type == 'Producto') {
         
         # check that there is no stock of the product in the inventory
         if (all(operations$inventory[operations$inventory$Producto %in% input$delete.element.selection, 
@@ -2447,7 +2449,7 @@ shinyServer(function(input, output, session) {
     }  
     
   })
-
+  
   #### See databases ----
   # Providers
   output$providers <- DT::renderDataTable({
@@ -2507,5 +2509,5 @@ shinyServer(function(input, output, session) {
   extensions = c('Buttons'),
   options = dt.options)
   
-  })
+})
 
