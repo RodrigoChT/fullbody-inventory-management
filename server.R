@@ -918,18 +918,25 @@ shinyServer(function(input, output, session) {
     
   }
   
-  product.input.simple <- function(id, store, has.stock, selected = NULL) {
+  product.input.simple <- function(id, store, has.stock, selected = NULL, title = 1) {
+    
+    if (title == 1) {
+      label = 'Producto'
+    } else {
+      label = NULL
+    }
+    
     
     if (has.stock) {
       selectizeInput(id,
-                     label    = 'Producto',
-                     choices  = mixedsort(operations$inventory$Producto[operations$inventory[[store]] > 0]),
+                     label    = label,
+                     choices  = c('',mixedsort(operations$inventory$Producto[operations$inventory[[store]] > 0])),
                      selected = selected)
       
     } else {
       selectizeInput(id,
-                     label    = 'Producto',
-                     choices  = mixedsort(operations$inventory$Producto),
+                     label    = label,
+                     choices  = c('',mixedsort(operations$inventory$Producto)),
                      selected = selected)
     }
     
@@ -948,7 +955,7 @@ shinyServer(function(input, output, session) {
     
   }
   
-  price.input <- function(id, type, selected = NULL) {
+  price.input <- function(id, type, selected = NULL, title = 1) {
     if (type %in% c('supplier', 'supplier2')) {
       numericInput(id,
                    label = 'Precio',
@@ -960,22 +967,34 @@ shinyServer(function(input, output, session) {
       if (is.null(selected)) {
         selected <- default.price.type
       }
+      if (title == 1) {
+        label = 'Precio tipo'
+      } else {
+        label = NULL
+      }
       selectizeInput(id,
-                     label = 'Precio',
+                     label = label,
                      choices = mixedsort(choices),
                      selected = selected
       )
     }
   }
   
-  price.other.input <- function(id) {
+  price.other.input <- function(id, title = 1) {
+    
+    if (title == 1) {
+      label = 'Precio monto'
+    } else {
+      label = NULL
+    }
+    
     numericInput(id,
-                 label = '',
+                 label = label,
                  value = 0)
   }
   
   
-  quantity.input <- function(id, origin = NA, prod = NA, max.quantity = FALSE) {    # TODO: detect stock of prod in store
+  quantity.input <- function(id, origin = NA, prod = NA, max.quantity = FALSE, title = 1) {    # TODO: detect stock of prod in store
     
     if (max.quantity) {
       if (origin == 'prev.sale.trans') {
@@ -986,8 +1005,15 @@ shinyServer(function(input, output, session) {
     } else if (!max.quantity) {
       top.limit <- NA
     }
+    
+    if (title == 1) {
+      label = 'Cantidad'
+    } else {
+      label = NULL
+    }
+    
     numericInput(id,
-                 label = ' Cantidad',
+                 label = label,
                  value = 1,
                  min   = 1,
                  max   = top.limit,
@@ -1039,6 +1065,18 @@ shinyServer(function(input, output, session) {
     ))
   }
   
+  remove.input <- function(id, title) {
+    if (title == 1) {
+      label = ''
+    } else {
+      label = NULL
+    }
+    actionButton(id, 
+                 label = label,
+                 icon = icon('remove-circle',
+                             lib = 'glyphicon'))
+  }
+  
   #### Sale's input----
   inserted <- c()
   
@@ -1083,27 +1121,29 @@ shinyServer(function(input, output, session) {
         insertUI(
           selector = paste0('#', type, 'List'),
           ui = tags$div(id = item.id,
-                        tags$style(type='text/css', ".selectize-input {height: 42px; }"),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                        tags$style(type='text/css', ".selectize-input {height: 42px; }"), #42
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block;vertical-align:top',
                                  product.input.simple(prod.id,
                                                       origin,
-                                                      has.stock = T)
+                                                      has.stock = T,
+                                                      title = add)
                         ),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                        tags$div(style = 'margin: 0; padding: 0;  display:inline-block;vertical-align:top',
                                  quantity.input(quantity.id,
-                                                max.quantity = FALSE)),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                                                max.quantity = FALSE,
+                                                title = add)),
+                        tags$div(style = 'margin: 0; padding: 0;  display:inline-block;vertical-align:top',
                                  price.input(price.id,
                                              type,
-                                             default.price)),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
-                                 price.other.input(price.other.id)
+                                             default.price,
+                                             title = add)),
+                        tags$div(style = 'margin: 0; padding: 0;  display:inline-block;vertical-align:top',
+                                 price.other.input(price.other.id,
+                                                   title = add)
                         ),
-                        tags$div(style = 'margin-top: 45px; display:inline-block;vertical-align:top',
-                                 actionButton(remove.id, 
-                                              label = '',
-                                              icon = icon('remove-circle',
-                                                          lib = 'glyphicon'))
+                        tags$div(style = 'margin-top: 0px; padding:0;  display:inline-block;vertical-align:middle',
+                                remove.input(remove.id,
+                                             title = add)
                         )
           )
         )
@@ -1114,19 +1154,21 @@ shinyServer(function(input, output, session) {
           selector = paste0('#', type, 'List'),
           ui = tags$div(id = item.id,
                         tags$style(type='text/css', ".selectize-input {height: 42px; }"),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block;vertical-align:top',
                                  product.input.simple(prod.id,
                                                       origin,
-                                                      has.stock = F)
+                                                      has.stock = F,
+                                                      title = add)
                         ),
-                        tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block;vertical-align:top',
                                  quantity.input(quantity.id,
-                                                max.quantity = FALSE)),
+                                                max.quantity = FALSE,
+                                                title = add)),
                         #tags$div(style = 'margin-top: 20px; display:inline-block;vertical-align:top',
                         #         price.input(price.id,
                         #                     type,
                         #                     default.price)),
-                        tags$div(style = 'margin-top: 45px; display:inline-block;vertical-align:top',
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block;vertical-align:top',
                                  actionButton(remove.id, 
                                               label = '',
                                               icon = icon('remove-circle',
@@ -1158,16 +1200,18 @@ shinyServer(function(input, output, session) {
         insertUI(
           selector = paste0('#', type, 'List'),
           ui = tags$div(id = item.id,
-                        tags$div(style = 'display:inline-block',
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block',
                                  #product.dummy.input(prod.id, isolate(input[[paste0(type, '.product')]]))
                                  product.input.simple(prod.id,
                                                       origin,
-                                                      has.stock = has.stock)
+                                                      has.stock = has.stock,
+                                                      title = add)
                         ),
-                        tags$div(style = 'display:inline-block',
+                        tags$div(style = 'margin: 0; padding: 0; display:inline-block',
                                  quantity.input(quantity.id,
-                                                max.quantity = FALSE)),
-                        tags$div(style = 'display:inline-block',
+                                                max.quantity = FALSE,
+                                                title = add)),
+                        tags$div(style = ' margin: 0; padding: 0; display:inline-block',
                                  actionButton(remove.id, 
                                               label = '',
                                               icon = icon('remove-circle',
@@ -1185,6 +1229,9 @@ shinyServer(function(input, output, session) {
       # Update prices
       observeEvent(c(input[[price.id]],
                      input[[prod.id]]) , {
+                       if (input[[prod.id]] == '') {
+                         shinyjs::disable(price.other.id)
+                       }
                        if (!is.null(input[[price.id]])) {
                          if (input[[price.id]] == 'Otro') {
                            value <- NA

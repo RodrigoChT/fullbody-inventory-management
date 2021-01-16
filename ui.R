@@ -43,12 +43,7 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                                        value = 50)
                                          ),
                                          actionButton('sale.start',
-                                                      'Empezar venta'),
-                                        
-                                         actionButton('sale.process', 
-                                                      'Procesar venta',
-                                                      icon = icon('usd',
-                                                                  lib = 'glyphicon'))
+                                                      'Empezar venta')
                                        ),
                                        
                                        conditionalPanel(
@@ -63,6 +58,10 @@ shinyUI(navbarPage('Sistema de Inventario - Full Body',
                                                       'Cancelar'),
                                          actionButton('sale.check',
                                                       'Revisar venta'),
+                                         actionButton('sale.process', 
+                                                      'Procesar venta',
+                                                      icon = icon('usd',
+                                                                  lib = 'glyphicon')),
                                          textOutput('sale.check1'),
                                          tableOutput('sale.check0')
                                        )
